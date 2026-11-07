@@ -119,6 +119,50 @@ body {
     pointer-events: none;
     background: radial-gradient(120% 90% at 50% 55%, #fff 0%, #fff 60%, #fffaf3 100%);
   }
+  /* "touch to open" screen (only where the browser will not start sound by itself) */
+  .cinematic-intro__gate {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    padding-bottom: calc(18svh + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(20, 8, 10, 0.5), rgba(20, 8, 10, 0) 45%);
+    color: #fff;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cinematic-intro[data-gate] .cinematic-intro__gate { display: flex; }
+  .cinematic-intro__gate-ring {
+    position: relative;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
+    animation: intro-gate-pulse 1.8s ease-in-out infinite;
+  }
+  .cinematic-intro__gate-ring::after {
+    content: "";
+    position: absolute;
+    inset: 19px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+  }
+  .cinematic-intro__gate-text {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 0.02em;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  }
+  @keyframes intro-gate-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.95; }
+    50% { transform: scale(1.12); opacity: 0.7; }
+  }
   .cinematic-intro__controls {
     position: absolute;
     z-index: 2;
