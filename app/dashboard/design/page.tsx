@@ -26,7 +26,7 @@ export default async function DesignPage() {
       allowPartySize={settings.allowPartySize}
     >
       {ws.renderer.startsWith("pearl-lotus") ? (
-        <p className="hint mb-2">في تصميم «لوتس اللؤلؤ» تظهر صورتك الأولى مخفيّة داخل الإطار الذهبي في الصفحة الرابعة، ويكشفها الضيف بإصبعه.</p>
+        <p className="hint mb-2">في تصميم «Dior Pink Flowers» تظهر صورتك الأولى مخفيّة داخل الإطار الذهبي في الصفحة الرابعة، ويكشفها الضيف بإصبعه.</p>
       ) : null}
       <PhotoManager photos={ws.content.photos || []} maxPhotos={settings.maxPhotos} maxMb={settings.maxUploadMb} />
       {settings.allowMusic ? <MusicManager musicUrl={ws.content.musicUrl || ""} /> : null}
