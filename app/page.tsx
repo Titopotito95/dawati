@@ -46,7 +46,7 @@ export default async function Home() {
       <SiteHeader overlay />
       <main>
         {/* ---------------- hero: phone preview over the video ---------------- */}
-        <section className="hero-panel -mt-16 pb-14 pt-24 sm:pt-28">
+        <section className="hero-panel -mt-16 pb-14">
           <h1 className="sr-only">دعوتك… بداية حكاية جميلة</h1>
 
           <div className="phone-stage relative mx-auto flex max-w-5xl justify-center px-4">

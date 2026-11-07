@@ -84,6 +84,13 @@ body {
   }
   .hero-panel {
     position: relative;
+    /* the phone preview stands on the video's floor: its base lines up with the floor diamonds */
+    --ph: calc(min(100vw - 32px, 340px, 78svh * 9 / 19.5) * 0.6 * 19.5 / 9); /* phone height */
+    --floor-y: calc(100vw * 1200 / 900); /* phones: floor level in the 900-wide video */
+    padding-top: max(80px, calc(var(--floor-y) - var(--ph)));
+  }
+  @media (min-aspect-ratio: 1/1) {
+    .hero-panel { --floor-y: calc(100vw * 1012 / 1800); } /* wide screens: floor level in the 1800-wide video */
   }
 
   /* ---- animated background at the top of the page (behind header + hero), no box, no edges ---- */
