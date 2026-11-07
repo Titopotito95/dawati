@@ -398,6 +398,24 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
             {!showVenue && !(p.message && c.customMessage) ? (
               <p className="lt-script lt-rv">{couple ? `${c.groomName} و ${c.brideName}` : c.eventTitle}</p>
             ) : null}
+            <ul className="lt-rules lt-rv" style={{ ["--i" as string]: 5 }}>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+                  <circle cx="12" cy="13" r="3.4" />
+                  <path d="M3.5 3.5l17 17" />
+                </svg>
+                <span>يرجى احترام الخصوصية بعدم التصوير</span>
+              </li>
+              <li>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="5.2" r="2.2" />
+                  <path d="M12 8.4v5.8M8.4 10.6h7.2M12 14.2l-2.6 5.3M12 14.2l2.6 5.3" />
+                  <path d="M3.5 3.5l17 17" />
+                </svg>
+                <span>ممنوع اصطحاب الأطفال</span>
+              </li>
+            </ul>
           </div>
         </section>
 

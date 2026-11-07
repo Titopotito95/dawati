@@ -61,6 +61,20 @@
 .lt-p4 .lt-oval { top: 27%; bottom: 52%; left: 29%; right: 29%; gap: 1.4cqi; }
 .lt-p4 .lt-lower { top: 58%; bottom: 21%; left: 16%; right: 16%; gap: 1.4cqi; z-index: 2; }
 
+/* venue page: guest notes (no photos, no children) */
+.lt-rules {
+  list-style: none;
+  margin: 1.6cqi 0 0;
+  padding: 2.6cqi 3cqi 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2cqi;
+  border-top: 1px solid rgba(170, 130, 80, 0.45);
+}
+.lt-rules li { display: flex; align-items: center; gap: 2.4cqi; font-size: 3.7cqi; line-height: 1.5; color: #7a5a4c; }
+.lt-rules svg { width: 6.4cqi; height: 6.4cqi; flex: none; color: #9a7442; filter: drop-shadow(0 1px 3px rgba(255, 252, 249, 0.9)); }
+
 /* ---------------- page 4: photo under a scratch layer, inside the gold oval ---------------- */
 .lt-reveal {
   position: absolute;
