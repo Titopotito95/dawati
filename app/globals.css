@@ -76,6 +76,96 @@ body {
   .canvas {
     background-color: var(--color-canvas);
   }
+  /* ---- home-page cinematic intro (jewellery-box video), full screen above the loaded page ---- */
+  .cinematic-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    overflow: hidden;
+    /* thin bands above/below the film on tall phones, in the colours of its own top and bottom edges */
+    background: linear-gradient(to bottom, #1e1613 50%, #a3866b 50%);
+    touch-action: none;
+    overscroll-behavior: contain;
+  }
+  .cinematic-intro__video {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 100%;
+    /* phones: zoomed in only moderately (about 420 of the 1280 px width stays visible, centred on the
+       jewellery box); on tall phones that leaves a thin band above and below instead of more zoom */
+    height: min(100%, calc(100vw * 720 / 420));
+    transform: translateY(-50%);
+    object-fit: cover;
+    object-position: 50% 50%;
+    /* matching still frame (same framing) while the video starts — never a black screen */
+    background: url("/assets/intro/intro-mobile.webp") 50% 50% / cover no-repeat;
+  }
+  @media (max-aspect-ratio: 420/720) {
+    .cinematic-intro__video { /* soften the film's top and bottom edges into the bands */
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+      mask-image: linear-gradient(to bottom, transparent, #000 4%, #000 96%, transparent);
+    }
+  }
+  .cinematic-intro__video::-webkit-media-controls,
+  .cinematic-intro__video::-webkit-media-controls-start-playback-button {
+    display: none !important;
+    -webkit-appearance: none;
+  }
+  .cinematic-intro__flash { /* completes the crystal-light ending, then fades away with the intro */
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(120% 90% at 50% 55%, #fff 0%, #fff 60%, #fffaf3 100%);
+  }
+  .cinematic-intro__controls {
+    position: absolute;
+    z-index: 2;
+    left: 16px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 8px;
+    transition: opacity 0.3s ease;
+  }
+  .cinematic-intro[data-flash] .cinematic-intro__controls {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cinematic-intro__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(20, 8, 10, 0.3);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  .cinematic-intro__btn--icon {
+    width: 34px;
+    padding: 0;
+  }
+  @media (min-aspect-ratio: 1/1) {
+    /* laptops / desktops: the whole 16:9 film, full screen */
+    .cinematic-intro__video {
+      top: 0;
+      height: 100%;
+      transform: none;
+      object-position: 50% 70%;
+      background-image: url("/assets/intro/intro-desktop.webp");
+      background-position: 50% 70%;
+    }
+  }
+  .intro-done .cinematic-intro { display: none !important; }
+  @media (prefers-reduced-motion: reduce) {
+    .cinematic-intro { display: none !important; }
+  }
+
   /* home page: one colour for the whole page = the champagne floor of the background video */
   .home-page {
     position: relative;

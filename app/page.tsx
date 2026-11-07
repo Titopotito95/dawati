@@ -3,6 +3,7 @@ import SiteHeader from "@/components/ui/SiteHeader";
 import SiteFooter from "@/components/ui/SiteFooter";
 import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
 import HeroBackground from "@/components/ui/HeroBackground";
+import CinematicIntro from "@/components/ui/CinematicIntro";
 import PhoneFrame from "@/components/invitation/PhoneFrame";
 import InvitationPlayer from "@/components/invitation/InvitationPlayer";
 import { Sparkle } from "@/components/ui/LineArt";
@@ -42,6 +43,7 @@ export default async function Home() {
 
   return (
     <div className="home-page min-h-svh">
+      <CinematicIntro />
       <HeroBackground />
       <SiteHeader overlay />
       <main>
