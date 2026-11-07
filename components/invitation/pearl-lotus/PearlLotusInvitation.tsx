@@ -30,6 +30,8 @@ const M = manifestJson as unknown as {
   reveal: Box;
 };
 const ASSET_ROOT = "/assets/themes/pearl-lotus/v1";
+/** Theme images are cached by browsers for a year; bump this whenever an image file changes. */
+const REV = "3";
 const VARIANTS = ["blush"]; // prepared colour variants (folders under ASSET_ROOT)
 const pct = (n: number) => `${(n * 100).toFixed(4)}%`;
 
@@ -80,7 +82,7 @@ function afterIntro(cb: () => void): () => void {
 function Medal({ base, fill }: { base: string; fill?: boolean }) {
   return (
     <div className={`lt-medal${fill ? " lt-medal-fill" : ""}`}>
-      <img src={`${base}/medallion.webp`} alt="" draggable={false} />
+      <img src={`${base}/medallion.webp?v=${REV}`} alt="" draggable={false} />
     </div>
   );
 }
@@ -116,7 +118,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
   const showVenue = p.venue && !!(c.venueName || c.address);
   // page 4 photo: the customer's first uploaded photo; the sample photo only in demos / previews
   const customerPhoto = c.photos?.[0]?.url;
-  const revealPhoto = customerPhoto || (vm.mode !== "guest" ? `${ASSET_ROOT}/demo-reveal.webp` : null);
+  const revealPhoto = customerPhoto || (vm.mode !== "guest" ? `${ASSET_ROOT}/demo-reveal.webp?v=${REV}` : null);
   const [revealKey, setRevealKey] = useState(0);
 
   // ---------- preload the cover and the first page, then show the closed invitation ----------
@@ -129,7 +131,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
         i.onload = i.onerror = () => res();
         i.src = src;
       });
-    Promise.all(["cover-base", "medallion", "page1"].map((n) => load(`${base}/${n}.webp`))).then(ready);
+    Promise.all(["cover-base", "medallion", "page1"].map((n) => load(`${base}/${n}.webp?v=${REV}`))).then(ready);
     const t = window.setTimeout(ready, 5000);
     return () => {
       alive = false;
@@ -295,7 +297,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
   } as CSSProperties;
   const page = (n: 1 | 2 | 3) => {
     const s = M[`page${n}` as const];
-    return <img className="lt-art" src={`${base}/page${n}.webp`} width={s.w} height={s.h} alt="" draggable={false} decoding="async" />;
+    return <img className="lt-art" src={`${base}/page${n}.webp?v=${REV}`} width={s.w} height={s.h} alt="" draggable={false} decoding="async" />;
   };
 
   return (
@@ -424,8 +426,8 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
           {revealPhoto ? (
             <ScratchReveal
               key={revealKey}
-              art={`${base}/page3.webp`}
-              frame={`${base}/page3-frame.webp`}
+              art={`${base}/page3.webp?v=${REV}`}
+              frame={`${base}/page3-frame.webp?v=${REV}`}
               box={M.reveal}
               photo={revealPhoto}
               interactive={!showcase}
@@ -478,7 +480,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
             {(["l", "r"] as const).map((side) => (
               <div key={side} ref={side === "l" ? doorL : doorR} className={`lt-door lt-door-${side}`}>
                 <div className="lt-door-art">
-                  <img src={`${base}/cover-base.webp`} alt="" draggable={false} />
+                  <img src={`${base}/cover-base.webp?v=${REV}`} alt="" draggable={false} />
                   <Medal base={base} />
                 </div>
                 <div className="lt-door-shadow" />
@@ -489,7 +491,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
                 {(["front", "back"] as const).map((f) => (
                   <div key={f} className={`lt-face lt-face-${f}`}>
                     <Medal base={base} fill />
-                    <div className="lt-sheen" style={{ WebkitMaskImage: `url(${base}/medallion.webp)`, maskImage: `url(${base}/medallion.webp)` }}>
+                    <div className="lt-sheen" style={{ WebkitMaskImage: `url(${base}/medallion.webp?v=${REV})`, maskImage: `url(${base}/medallion.webp?v=${REV})` }}>
                       <div className="lt-sheen-in" />
                     </div>
                   </div>
