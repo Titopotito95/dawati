@@ -39,7 +39,7 @@ export default async function Home() {
   const contact = await orderContact(db);
   const first = themes[0];
   const price = first ? formatMoney(first.priceMinor, first.currency) : "";
-  const vm = sampleViewModel("white");
+  const vm = { ...sampleViewModel("blush"), renderer: "pearl-lotus@1" }; // front-page phone shows the Pearl Lotus invitation
 
   return (
     <div className="home-page min-h-svh">
