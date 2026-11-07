@@ -5,7 +5,7 @@ import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
 import HeroBackground from "@/components/ui/HeroBackground";
 import PhoneFrame from "@/components/invitation/PhoneFrame";
 import InvitationPlayer from "@/components/invitation/InvitationPlayer";
-import { Rings, SealedEnvelope, FlowerSprig, Swans, Glasses, Sparkle } from "@/components/ui/LineArt";
+import { Sparkle } from "@/components/ui/LineArt";
 import { sampleViewModel } from "@/lib/invitation/defaults";
 import { getDb } from "@/lib/db";
 import { listThemes } from "@/lib/services/catalog";
@@ -41,28 +41,20 @@ export default async function Home() {
   const vm = sampleViewModel("white");
 
   return (
-    <div className="min-h-svh bg-white">
+    <div className="home-page min-h-svh">
+      <HeroBackground />
       <SiteHeader overlay />
       <main>
-        {/* ---------------- hero: inset cream panel ---------------- */}
+        {/* ---------------- hero: phone preview over the video ---------------- */}
         <section className="hero-panel -mt-16 pb-14 pt-24 sm:pt-28">
-          <HeroBackground />
           <h1 className="sr-only">دعوتك… بداية حكاية جميلة</h1>
 
-          <div className="relative mx-auto flex max-w-5xl justify-center px-4">
-            {/* floating line art (decorative) */}
-            <Rings className="float-art hidden w-24 sm:block" style={{ top: "6%", right: "12%", ["--rot" as string]: "-8deg" }} />
-            <Swans className="float-art oxblood hidden w-32 md:block" style={{ top: "38%", right: "4%", animationDelay: "-2s" }} />
-            <Glasses className="float-art hidden w-16 sm:block" style={{ bottom: "8%", right: "16%", animationDelay: "-4s", ["--rot" as string]: "6deg" }} />
-            <SealedEnvelope className="float-art oxblood hidden w-28 sm:block" style={{ top: "10%", left: "11%", animationDelay: "-1s", ["--rot" as string]: "7deg" }} />
-            <FlowerSprig className="float-art hidden w-16 md:block" style={{ top: "44%", left: "6%", animationDelay: "-3s" }} />
-            <Sparkle className="float-art w-5" style={{ bottom: "18%", left: "20%", animationDelay: "-5s" }} />
-            <Sparkle className="float-art w-4" style={{ top: "4%", left: "38%", animationDelay: "-2.5s" }} />
+          <div className="phone-stage relative mx-auto flex max-w-5xl justify-center px-4">
             <PhoneFrame label="عرض حي للدعوة">
               <InvitationPlayer vm={vm} showcase />
             </PhoneFrame>
           </div>
-          <p className="mt-8 text-center text-xs font-semibold text-ink-soft">
+          <p className="relative z-10 mt-8 text-center text-xs font-semibold text-ink-soft">
             لديك رمز دعوة؟{" "}
             <Link href="/access" className="text-burgundy underline-offset-4 hover:underline">
               لدي رمز دخول
@@ -211,7 +203,7 @@ export default async function Home() {
           </div>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter blend />
       <WhatsAppFloat href={contact.whatsappUrl} label={contact.viaAffiliate ? `تواصل مع ${contact.name} عبر واتساب` : "تواصل معنا عبر واتساب"} />
     </div>
   );

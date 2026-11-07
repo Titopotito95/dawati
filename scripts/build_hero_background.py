@@ -4,8 +4,8 @@ Landing-page animated background: recomposes the supplied luxury video so its or
 the outer edges and the champagne centre is much wider. Nothing is regenerated or redrawn.
 
   input : assets-src/hero/background.mp4  (720x1280, 24 fps, 10 s)
-  output: public/assets/hero/hero-mobile.mp4 + .webp poster   (900x1280, phones: widened only)
-          public/assets/hero/hero-desktop.mp4 + .webp poster  (1800x1080, laptops/desktops)
+  output: public/assets/hero/hero-mobile.mp4 + .webp poster   (900x1950, phones)
+          public/assets/hero/hero-desktop.mp4 + .webp poster  (1800x1400, laptops/desktops)
 
 Method (ffmpeg only, run once):
   1. Loop: the clip's first/last frames differ slightly, so the final 0.6 s cross-fades into the
@@ -17,6 +17,8 @@ Method (ffmpeg only, run once):
   3. The wider centre is the video's own empty champagne column (x 330..410) widened and softly
      blurred, so its moving light keeps animating behind the content (it contains no objects).
   4. Columns blend into the centre through feathered alpha masks (no hard seams).
+  5. Taller canvas: the whole original height is kept (bottom flowers and diamonds included); the
+     shiny floor continues below it and fades into the page colour PAGE_BG, so the page has no edge.
 Requires: ffmpeg, Python 3 with Pillow + NumPy.
 """
 from __future__ import annotations
@@ -38,12 +40,13 @@ RIGHT = (425, 720)  # x range of the right ornament column
 BAND = (330, 410)  # empty champagne column used to widen the centre
 FEATHER = 35  # px (source scale) soft blend on the inner side of each column
 XFADE = 0.6  # s loop cross-fade
+PAGE_BG = "CBBCAC"  # champagne floor colour = website background colour
 
 TARGETS = {
     # phones: original height and framing, widened horizontally by 25% (ornaments at full size)
-    "mobile": {"w": 900, "h": 1280, "scale": 1.0, "bleed": 0, "bottom_fade": 0, "crf": 28},
-    # laptops / desktops; columns fill the height
-    "desktop": {"w": 1800, "h": 1080, "scale": 1080 / SRC_H, "bleed": 0, "bottom_fade": 0, "crf": 27},
+    "mobile": {"w": 900, "h": 1950, "scale": 1.0, "bleed": 0, "bottom_fade": 60, "fill": (1250, 1760), "crf": 28},
+    # laptops / desktops
+    "desktop": {"w": 1800, "h": 1400, "scale": 1080 / SRC_H, "bleed": 0, "bottom_fade": 50, "fill": (1050, 1270), "crf": 27},
 }
 
 
@@ -71,6 +74,13 @@ def make_mask(w: int, h: int, inner: str, feather: int, bottom_fade: int, path: 
     Image.fromarray((m * 255).astype(np.uint8), "L").save(path)
 
 
+def make_fill_mask(w: int, h: int, start: int, end: int, path: Path) -> None:
+    """Alpha of the flat page-colour layer: 0 above `start`, 1 below `end` (smoothstep)."""
+    t = np.clip((np.arange(h, dtype=np.float64) - start) / max(1, end - start), 0, 1)
+    t = t * t * (3 - 2 * t)
+    Image.fromarray((np.tile(t[:, None], (1, w)) * 255).astype(np.uint8), "L").save(path)
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     TMP.mkdir(parents=True, exist_ok=True)
@@ -96,6 +106,7 @@ def main() -> None:
         bf = t["bottom_fade"] if ch < H else 0
         make_mask(lw, ch, "right", f, bf, TMP / f"{name}-maskL.png")
         make_mask(rw, ch, "left", f, bf, TMP / f"{name}-maskR.png")
+        make_fill_mask(W, H, *t["fill"], TMP / f"{name}-fill.png")
         bw = BAND[1] - BAND[0]
         graph = (
             f"[0:v]split=3[v1][v2][v3];"
@@ -110,11 +121,15 @@ def main() -> None:
             f"[v3]crop={RIGHT[1] - RIGHT[0]}:{SRC_H}:{RIGHT[0]}:0,scale={rw}:{ch}:flags=lanczos,format=yuva420p[r0];"
             f"[2:v]format=gray[mr];[r0][mr]alphamerge[r];"
             f"[plate][l]overlay=x={-bleed}:y=0:shortest=1[t1];"
-            f"[t1][r]overlay=x={W - rw + bleed}:y=0:shortest=1,format=yuv420p[out]"
+            f"[t1][r]overlay=x={W - rw + bleed}:y=0:shortest=1[t2];"
+            # floor fades into the flat page colour at the bottom
+            f"color=c=0x{PAGE_BG}:s={W}x{H}:r=24,format=yuva420p[cc];[3:v]format=gray[mg];[cc][mg]alphamerge[fill];"
+            f"[t2][fill]overlay=0:0:shortest=1,format=yuv420p[out]"
         )
         mp4 = OUT / f"hero-{name}.mp4"
         run(["ffmpeg", "-v", "error", "-y", "-i", str(loop),
              "-loop", "1", "-i", str(TMP / f"{name}-maskL.png"), "-loop", "1", "-i", str(TMP / f"{name}-maskR.png"),
+             "-loop", "1", "-i", str(TMP / f"{name}-fill.png"),
              "-filter_complex", graph, "-map", "[out]", "-t", f"{loop_len:.3f}", "-r", "24", "-an",
              "-c:v", "libx264", "-profile:v", "high", "-preset", "slow", "-crf", str(t["crf"]),
              "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(mp4)])

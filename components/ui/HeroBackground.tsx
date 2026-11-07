@@ -3,15 +3,16 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Animated landing-page background (layer behind the hero content).
- * Phones get the portrait composition, wider screens the widescreen one; the browser picks the
- * <source> by its media query. Muted + playsInline so iOS / Android allow autoplay; the still
- * frame behind it is only a fallback for when a device refuses autoplay (e.g. iPhone Low Power Mode).
+ * Animated landing-page background: sits at the very top of the page, behind the header and the
+ * hero, and its bottom fades into the page colour (the page itself has the same colour).
+ * Phones get the portrait composition, wider screens the widescreen one (picked by <source media>).
+ * Muted + playsInline so iOS / Android allow autoplay; the still frame behind it is only a fallback.
  */
 export default function HeroBackground() {
   const ref = useRef<HTMLVideoElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
 
+  // the see-through header turns solid once the video has scrolled away from under it
   useEffect(() => {
     const el = wrap.current;
     const header = document.querySelector<HTMLElement>(".site-header-overlay");
@@ -35,24 +36,22 @@ export default function HeroBackground() {
 
   return (
     <div ref={wrap} className="hero-bg" aria-hidden="true">
-      <div className="hero-bg__sticky">
-        <div className="hero-bg__media">
-          <video
-            ref={ref}
-            className="hero-bg__video"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            disablePictureInPicture
-            disableRemotePlayback
-            tabIndex={-1}
-          >
-            <source src="/assets/hero/hero-mobile.mp4" type="video/mp4" media="(max-aspect-ratio: 1/1)" />
-            <source src="/assets/hero/hero-desktop.mp4" type="video/mp4" />
-          </video>
-        </div>
+      <div className="hero-bg__media">
+        <video
+          ref={ref}
+          className="hero-bg__video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          disableRemotePlayback
+          tabIndex={-1}
+        >
+          <source src="/assets/hero/hero-mobile.mp4" type="video/mp4" media="(max-aspect-ratio: 1/1)" />
+          <source src="/assets/hero/hero-desktop.mp4" type="video/mp4" />
+        </video>
       </div>
     </div>
   );

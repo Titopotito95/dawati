@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { BRAND } from "@/lib/brand";
 
-export default function SiteFooter() {
+/** `blend`: no own background, so the home page colour runs to the bottom. */
+export default function SiteFooter({ blend = false }: { blend?: boolean }) {
   return (
-    <footer className="mt-16 border-t border-[var(--hairline)] bg-white">
+    <footer className={`mt-16 border-t border-[var(--hairline)] ${blend ? "bg-transparent" : "bg-white"}`}>
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 text-sm text-ink-soft sm:grid-cols-3">
         <div>
           <p className="font-[family-name:var(--font-ruqaa)] text-2xl text-burgundy">{BRAND.name}</p>

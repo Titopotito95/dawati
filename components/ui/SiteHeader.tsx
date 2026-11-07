@@ -1,7 +1,15 @@
 import Link from "next/link";
-import Logo from "./Logo";
+import Logo, { LogoSwap } from "./Logo";
+import MobileMenu, { type MenuLink } from "./MobileMenu";
 
-/** `overlay`: see-through over the home-page video, turns solid once the hero has scrolled away. */
+const NAV: MenuLink[] = [
+  { href: "/themes", label: "المجموعة" },
+  { href: "/#how", label: "كيف تعمل" },
+  { href: "/#plans", label: "الباقات" },
+  { href: "/#faq", label: "الأسئلة الشائعة" },
+];
+
+/** `overlay`: see-through over the home-page video, turns solid once the video has scrolled away. */
 export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   return (
     <header
@@ -11,17 +19,28 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           : "sticky top-0 z-30 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75"
       }
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
+      {/* phones: menu · name in the middle (alternates with a diamond) · balancing space */}
+      <div className="relative grid h-16 grid-cols-[44px_1fr_44px] items-center px-3 md:hidden">
+        <MobileMenu
+          links={[...NAV, { href: "/access", label: "لدي رمز دخول" }, { href: "/themes", label: "استكشف التصاميم ←" }]}
+        />
+        <LogoSwap />
+        <span aria-hidden="true" />
+      </div>
+
+      {/* tablets and desktops */}
+      <div className="mx-auto hidden h-16 max-w-6xl items-center justify-between gap-3 px-4 md:flex">
         <Logo />
-        <nav className="hidden items-center gap-7 text-[14.5px] text-ink-soft md:flex" aria-label="التنقل الرئيسي">
-          <Link href="/themes" className="transition hover:text-burgundy">المجموعة</Link>
-          <Link href="/#how" className="transition hover:text-burgundy">كيف تعمل</Link>
-          <Link href="/#plans" className="transition hover:text-burgundy">الباقات</Link>
-          <Link href="/#faq" className="transition hover:text-burgundy">الأسئلة الشائعة</Link>
+        <nav className="flex items-center gap-7 text-[14.5px] text-ink-soft" aria-label="التنقل الرئيسي">
+          {NAV.map((l) => (
+            <Link key={l.href} href={l.href} className="transition hover:text-burgundy">
+              {l.label}
+            </Link>
+          ))}
         </nav>
         <div className="flex items-center gap-2">
           <Link href="/access" className="btn btn-ghost btn-sm">لدي رمز دخول</Link>
-          <Link href="/themes" className="btn btn-primary btn-sm hidden sm:inline-flex">
+          <Link href="/themes" className="btn btn-primary btn-sm inline-flex">
             استكشف التصاميم <span aria-hidden="true">←</span>
           </Link>
         </div>
