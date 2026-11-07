@@ -11,8 +11,11 @@ The artwork is not redrawn: only cut into layers and compressed.
           cover-base.webp  cover with the medallion lifted out (seam line continued) - seen only
                            around the medallion while it spins
           medallion.webp   the medallion alone, transparent around it (spins on its own)
-          page1..3.webp    the three interior pages
+          page1..3.webp    the interior pages (page 2 is shown twice: date page and venue page)
+          page3-frame.webp page 3's gold oval frame + flowers with the inside of the oval transparent:
+                           the scratch-reveal photo shows through it, the flowers stay on top
           thumb.webp       catalogue thumbnail
+          ../demo-reveal.webp  sample photo for the scratch reveal (demo / preview only)
           + manifest.json  geometry (seam, medallion box, page sizes) used by the renderer
 
 The medallion keeps its original lettering exactly as supplied (used with the owner's permission).
@@ -34,7 +37,8 @@ OUT = ROOT / "public" / "assets" / "themes" / "pearl-lotus" / "v1"
 
 SEAM_X = 356.5  # centre of the vertical gold line (cover px)
 BOX = (186, 452, 530, 828)  # search window around the medallion
-TIPS = (464, 807)  # medallion top / bottom tip rows (the seam line continues beyond them)
+TIPS = (464, 807)
+OVAL = (359, 452, 183, 239)  # page 3 inner oval: centre x, centre y, radius x, radius y (just inside the gold line)  # medallion top / bottom tip rows (the seam line continues beyond them)
 
 
 def gold_mask(img: np.ndarray) -> np.ndarray:
@@ -90,6 +94,29 @@ def lift_medallion(img: np.ndarray, medal: np.ndarray, pearl: np.ndarray) -> np.
     return base
 
 
+def oval_frame(page: np.ndarray) -> tuple[np.ndarray, dict]:
+    """Page 3 with the inside of its inner oval made transparent, except the flowers/branches that
+    overlap it (they stay opaque so they sit above the revealed photo)."""
+    h, w = page.shape[:2]
+    cx, cy, rx, ry = OVAL
+    oval = np.zeros((h, w), np.uint8)
+    cv2.ellipse(oval, (cx, cy), (rx, ry), 0, 0, 360, 1, -1)
+    hsv = cv2.cvtColor(page, cv2.COLOR_BGR2HSV).astype(int)
+    deco = ((hsv[..., 1] > 55) | (gold_mask(page) == 1)).astype(np.uint8) & oval
+    deco = cv2.morphologyEx(deco, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+    n, lab, st, _ = cv2.connectedComponentsWithStats(deco)
+    keep = np.zeros_like(deco)
+    for i in range(1, n):
+        if st[i, cv2.CC_STAT_AREA] >= 160:
+            keep[lab == i] = 1
+    keep = cv2.dilate(keep, np.ones((5, 5), np.uint8))
+    hole = (oval & (1 - keep)).astype(np.float32)
+    hole = cv2.GaussianBlur(hole, (5, 5), 0)
+    alpha = ((1 - hole) * 255).astype(np.uint8)
+    box = {"left": (cx - rx) / w, "top": (cy - ry) / h, "width": 2 * rx / w, "height": 2 * ry / h}
+    return np.dstack([page, alpha]), box
+
+
 def save_webp(arr_bgr_or_bgra: np.ndarray, path: Path, q: int = 86) -> None:
     if arr_bgr_or_bgra.shape[2] == 4:
         im = Image.fromarray(cv2.cvtColor(arr_bgr_or_bgra, cv2.COLOR_BGRA2RGBA), "RGBA")
@@ -121,12 +148,18 @@ def main() -> None:
         save_webp(p, out / f"page{i}.webp")
         pages[f"page{i}"] = {"w": p.shape[1], "h": p.shape[0]}
     save_webp(cv2.resize(clean, (480, round(480 * H / W)), interpolation=cv2.INTER_AREA), out / "thumb.webp", 82)
+    frame, reveal = oval_frame(cv2.imread(str(SRC / "page3.jpg")))
+    save_webp(frame, out / "page3-frame.webp", 88)
+    demo = cv2.imread(str(SRC / "demo-reveal.jpg"))
+    dw = 760
+    save_webp(cv2.resize(demo, (dw, round(dw * demo.shape[0] / demo.shape[1])), interpolation=cv2.INTER_AREA), OUT / "demo-reveal.webp", 84)
 
     manifest = {
         "cover": {"w": W, "h": H},
         "seam": SEAM_X / W,
         "medallion": {"left": mx0 / W, "top": my0 / H, "width": (mx1 - mx0) / W, "height": (my1 - my0) / H},
         **pages,
+        "reveal": reveal,
     }
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2))
     print(json.dumps(manifest))

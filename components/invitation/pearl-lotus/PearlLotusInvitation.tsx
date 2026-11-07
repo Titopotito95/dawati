@@ -6,6 +6,7 @@ import type { InvitationViewModel } from "@/lib/invitation/types";
 import { formatEventDate, formatEventTime } from "@/lib/invitation/format";
 import manifestJson from "@/public/assets/themes/pearl-lotus/v1/manifest.json";
 import { Countdown, downloadIcs, eventStartUtc, safeHttpsUrl, useReveal } from "./parts";
+import ScratchReveal from "./ScratchReveal";
 import "./pearl-lotus.css";
 
 /**
@@ -13,7 +14,8 @@ import "./pearl-lotus.css";
  * Closed pearl cover → the gold medallion spins like a top on its vertical axis (≈1.4 s) and settles
  * facing front → the cover parts along
  * its vertical gold seam into two sliding doors (≈1.05 s) → the first page, already underneath, is
- * revealed → the guest scrolls through three pages. All wording is live text from the dashboard.
+ * revealed → the guest scrolls through four pages (invitation, date, venue, and a photo hidden under
+ * a scratch layer in the gold oval). All wording and the photo come from the dashboard.
  */
 
 type Phase = "loading" | "closed" | "opening" | "open";
@@ -25,6 +27,7 @@ const M = manifestJson as unknown as {
   page1: { w: number; h: number };
   page2: { w: number; h: number };
   page3: { w: number; h: number };
+  reveal: Box;
 };
 const ASSET_ROOT = "/assets/themes/pearl-lotus/v1";
 const VARIANTS = ["blush"]; // prepared colour variants (folders under ASSET_ROOT)
@@ -111,6 +114,10 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
   const start = useMemo(() => eventStartUtc(c.eventDate, c.eventTime), [c.eventDate, c.eventTime]);
   const maps = c.mapsUrl ? safeHttpsUrl(c.mapsUrl) : null;
   const showVenue = p.venue && !!(c.venueName || c.address);
+  // page 4 photo: the customer's first uploaded photo; the sample photo only in demos / previews
+  const customerPhoto = c.photos?.[0]?.url;
+  const revealPhoto = customerPhoto || (vm.mode !== "guest" ? `${ASSET_ROOT}/demo-reveal.webp` : null);
+  const [revealKey, setRevealKey] = useState(0);
 
   // ---------- preload the cover and the first page, then show the closed invitation ----------
   useEffect(() => {
@@ -231,6 +238,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
       root.querySelectorAll(".lt-in").forEach((e) => e.classList.remove("lt-in"));
     }
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    setRevealKey((k) => k + 1);
     setPhase("closed");
   }, []);
 
@@ -368,8 +376,8 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
         </section>
 
         <section className="lt-page lt-p3">
-          {page(3)}
-          <div className="lt-content lt-oval" data-reveal>
+          {page(2)}
+          <div className="lt-content" data-reveal>
             {showVenue ? (
               <>
                 <h2 className="lt-title lt-rv">موقع الحفل</h2>
@@ -381,19 +389,42 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
                   </a>
                 ) : null}
               </>
-            ) : p.message && c.customMessage ? (
-              <p className="lt-text lt-rv">{c.customMessage}</p>
-            ) : (
+            ) : null}
+            {p.message && c.customMessage ? (
+              <p className="lt-text lt-text-soft lt-rv" style={{ ["--i" as string]: 4 }}>
+                {c.customMessage}
+              </p>
+            ) : null}
+            {!showVenue && !(p.message && c.customMessage) ? (
               <p className="lt-script lt-rv">{couple ? `${c.groomName} و ${c.brideName}` : c.eventTitle}</p>
-            )}
+            ) : null}
           </div>
+        </section>
+
+        <section className="lt-page lt-p4">
+          {page(3)}
+          {revealPhoto ? (
+            <ScratchReveal
+              key={revealKey}
+              art={`${base}/page3.webp`}
+              frame={`${base}/page3-frame.webp`}
+              box={M.reveal}
+              photo={revealPhoto}
+              interactive={!showcase}
+              autoDemo={showcase}
+              reduced={reduced}
+            />
+          ) : (
+            <div className="lt-content lt-oval" data-reveal>
+              <p className="lt-script lt-rv">{couple ? `${c.groomName} و ${c.brideName}` : c.eventTitle}</p>
+            </div>
+          )}
           <div className="lt-content lt-lower" data-reveal>
             {p.thanks && c.closingMessage ? <p className="lt-text lt-rv">{c.closingMessage}</p> : null}
           </div>
         </section>
 
         <footer className="lt-end" data-reveal>
-          {showVenue && p.message && c.customMessage ? <p className="lt-text lt-rv">{c.customMessage}</p> : null}
           <p className="lt-script lt-script-sm lt-rv" style={{ ["--i" as string]: 2 }}>
             {couple ? `${c.groomName} و ${c.brideName}` : c.eventTitle}
           </p>

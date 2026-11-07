@@ -56,9 +56,86 @@
 }
 /* text areas = the empty pearl inside each frame */
 .lt-p1 .lt-content { top: 20%; bottom: 25%; left: 16%; right: 16%; }
-.lt-p2 .lt-content { top: 21%; bottom: 37%; left: 10%; right: 10%; }
-.lt-p3 .lt-oval { top: 27%; bottom: 52%; left: 29%; right: 29%; gap: 1.4cqi; }
-.lt-p3 .lt-lower { top: 58%; bottom: 21%; left: 16%; right: 16%; gap: 1.4cqi; }
+.lt-p2 .lt-content,
+.lt-p3 .lt-content { top: 21%; bottom: 37%; left: 10%; right: 10%; }
+.lt-p4 .lt-oval { top: 27%; bottom: 52%; left: 29%; right: 29%; gap: 1.4cqi; }
+.lt-p4 .lt-lower { top: 58%; bottom: 21%; left: 16%; right: 16%; gap: 1.4cqi; z-index: 2; }
+
+/* ---------------- page 4: photo under a scratch layer, inside the gold oval ---------------- */
+.lt-reveal {
+  position: absolute;
+  z-index: 1;
+  clip-path: ellipse(50% 50% at 50% 50%);
+  overflow: hidden;
+}
+.lt-reveal-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.lt-reveal-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  transition: opacity 0.9s ease;
+}
+.lt-reveal-canvas[data-interactive] { pointer-events: auto; touch-action: none; cursor: grab; }
+.lt-reveal[data-cleared] .lt-reveal-canvas { opacity: 0; pointer-events: none; }
+.lt-reveal-sheen { /* slow light gliding over the untouched surface: it invites a touch */
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(105deg, rgba(255, 255, 255, 0) 35%, rgba(255, 255, 255, 0.38) 50%, rgba(255, 255, 255, 0) 65%);
+  background-size: 260% 100%;
+  animation: lt-sheen 3.2s ease-in-out infinite;
+  transition: opacity 0.4s ease;
+}
+.lt-reveal[data-started] .lt-reveal-sheen { opacity: 0; animation: none; }
+@keyframes lt-sheen { 0% { background-position: 120% 0; } 60%, 100% { background-position: -20% 0; } }
+.lt-frame { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; display: block; }
+.lt-reveal-top { position: absolute; z-index: 3; pointer-events: none; }
+.lt-hand {
+  position: absolute;
+  width: 24%;
+  aspect-ratio: 1;
+  left: 30%;
+  top: 38%;
+  transform: translate(-47.6%, -12.5%);
+  color: #fff;
+  filter: drop-shadow(0 2px 6px rgba(70, 40, 30, 0.45));
+  animation: lt-hand 3s ease-in-out infinite;
+  transition: opacity 0.35s ease;
+}
+.lt-hand[data-hidden] { opacity: 0; animation: none; }
+.lt-hand-js { animation: none; opacity: 1; }
+.lt-hand[data-static] { animation: none; left: 50%; top: 50%; }
+.lt-hand-tap { opacity: 0.35; transform-origin: 30.5px 8px; animation: lt-tap 1.5s ease-in-out infinite; }
+@keyframes lt-hand {
+  0% { left: 28%; top: 36%; opacity: 0; }
+  12% { opacity: 1; }
+  32% { left: 72%; top: 44%; }
+  54% { left: 30%; top: 54%; }
+  78% { left: 70%; top: 63%; opacity: 1; }
+  92%, 100% { left: 70%; top: 63%; opacity: 0; }
+}
+@keyframes lt-tap { 0%, 100% { transform: scale(0.8); opacity: 0.25; } 50% { transform: scale(1.2); opacity: 0.45; } }
+.lt-reveal-reset {
+  position: absolute;
+  left: 50%;
+  bottom: -2%;
+  transform: translate(-50%, 50%);
+  display: grid;
+  place-items: center;
+  width: 9cqi;
+  height: 9cqi;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(170, 130, 80, 0.5);
+  background: rgba(255, 251, 248, 0.85);
+  color: #8a6438;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(120, 80, 60, 0.18);
+}
 
 .lt-bismillah { font-size: 4.4cqi; color: #8a6438; }
 .lt-line { font-size: 4.3cqi; line-height: 1.6; }
@@ -337,6 +414,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lt-hint, .lt-cue { animation: none; opacity: 1; }
+  .lt-hint, .lt-cue, .lt-reveal-sheen, .lt-hand-tap { animation: none; opacity: 1; }
   [data-reveal] .lt-rv { transition: none; transform: none; }
 }

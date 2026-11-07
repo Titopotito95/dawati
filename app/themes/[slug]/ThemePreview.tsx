@@ -14,9 +14,14 @@ export default function ThemePreview({ renderer, variants, header, order }: { re
   const vm = { ...sampleViewModel(variant as ColorVariantKey), renderer };
   return (
     <div className="grid items-start gap-8 md:grid-cols-[1fr_auto]">
-      <div>
-        {header}
-        <div className="card mt-6 p-5">
+      <div className="md:col-start-1 md:row-start-1">{header}</div>
+      <div className="flex justify-center md:sticky md:top-24 md:col-start-2 md:row-span-2 md:row-start-1">
+        <PhoneFrame label="معاينة التصميم">
+          <InvitationPlayer key={`${variant}-${replay}`} vm={vm} badge="معاينة" />
+        </PhoneFrame>
+      </div>
+      <div className="md:col-start-1 md:row-start-2">
+        <div className="card p-5">
           <p className="font-semibold">اختر اللون</p>
           <div className="mt-3 flex flex-wrap gap-3" role="radiogroup" aria-label="ألوان التصميم">
             {variants.map((v) => (
@@ -36,15 +41,10 @@ export default function ThemePreview({ renderer, variants, header, order }: { re
           <p className="hint mt-3">كل لون مُعدّ كتصميم مستقل بعناية، وليس مجرد فلتر.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button type="button" className="btn btn-outline btn-sm" onClick={() => setReplay((r) => r + 1)}>إعادة تشغيل العرض</button>
-            <Link href={`/demo?color=${variant}`} className="btn btn-ghost btn-sm">عرض بملء الشاشة</Link>
+            <Link href={`/demo?theme=${renderer.split("@")[0]}&color=${variant}`} className="btn btn-ghost btn-sm">عرض بملء الشاشة</Link>
           </div>
         </div>
         {order}
-      </div>
-      <div className="flex justify-center md:sticky md:top-24">
-        <PhoneFrame label="معاينة التصميم">
-          <InvitationPlayer key={`${variant}-${replay}`} vm={vm} badge="معاينة" />
-        </PhoneFrame>
       </div>
     </div>
   );
