@@ -1,9 +1,16 @@
 import Link from "next/link";
 import Logo from "./Logo";
 
-export default function SiteHeader() {
+/** `overlay`: see-through over the home-page video, turns solid once the hero has scrolled away. */
+export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   return (
-    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75">
+    <header
+      className={
+        overlay
+          ? "site-header-overlay sticky top-0 z-30"
+          : "sticky top-0 z-30 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75"
+      }
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
         <Logo />
         <nav className="hidden items-center gap-7 text-[14.5px] text-ink-soft md:flex" aria-label="التنقل الرئيسي">

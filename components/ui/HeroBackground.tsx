@@ -10,6 +10,18 @@ import { useEffect, useRef } from "react";
  */
 export default function HeroBackground() {
   const ref = useRef<HTMLVideoElement>(null);
+  const wrap = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = wrap.current;
+    const header = document.querySelector<HTMLElement>(".site-header-overlay");
+    if (!el || !header || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([e]) => header.toggleAttribute("data-solid", !e.isIntersecting), {
+      rootMargin: "-64px 0px 0px 0px",
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   useEffect(() => {
     const v = ref.current;
@@ -22,7 +34,7 @@ export default function HeroBackground() {
   }, []);
 
   return (
-    <div className="hero-bg" aria-hidden="true">
+    <div ref={wrap} className="hero-bg" aria-hidden="true">
       <div className="hero-bg__sticky">
         <div className="hero-bg__media">
           <video
@@ -41,7 +53,6 @@ export default function HeroBackground() {
             <source src="/assets/hero/hero-desktop.mp4" type="video/mp4" />
           </video>
         </div>
-        <div className="hero-bg__glow" />
       </div>
     </div>
   );

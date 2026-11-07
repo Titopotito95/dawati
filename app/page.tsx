@@ -42,30 +42,14 @@ export default async function Home() {
 
   return (
     <div className="min-h-svh bg-white">
-      <SiteHeader />
+      <SiteHeader overlay />
       <main>
         {/* ---------------- hero: inset cream panel ---------------- */}
-        <section className="hero-panel pb-14 pt-12 sm:pt-16">
+        <section className="hero-panel -mt-16 pb-14 pt-24 sm:pt-28">
           <HeroBackground />
-          <div className="relative z-10 mx-auto max-w-3xl px-5 text-center">
-            <span className="eyebrow reveal-up">دعوات رقمية فاخرة · دانتيل ولؤلؤ</span>
-            <h1 className="display reveal-up mt-4 text-[2.6rem] sm:text-6xl" style={{ ["--d" as string]: "0.08s" }}>
-              دعوتك… بداية حكاية جميلة
-            </h1>
-            <p className="reveal-up mx-auto mt-5 max-w-xl text-[17px] leading-8 text-ink-soft" style={{ ["--d" as string]: "0.16s" }}>
-              صمّم دعوة زفاف تليق بفرحتك: ظرف لؤلؤي يُفتح بلمسة على الختم، وبطاقة باسم كل ضيف، وتأكيد حضور تتابعه من هاتفك.
-            </p>
-            <div className="reveal-up mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3" style={{ ["--d" as string]: "0.24s" }}>
-              <Link href="/themes" className="btn btn-primary">
-                استكشف التصاميم <span aria-hidden="true">←</span>
-              </Link>
-              <Link href="#plans" className="link-arrow">
-                قارن الباقات
-              </Link>
-            </div>
-          </div>
+          <h1 className="sr-only">دعوتك… بداية حكاية جميلة</h1>
 
-          <div className="relative mx-auto mt-12 flex max-w-5xl justify-center px-4">
+          <div className="relative mx-auto flex max-w-5xl justify-center px-4">
             {/* floating line art (decorative) */}
             <Rings className="float-art hidden w-24 sm:block" style={{ top: "6%", right: "12%", ["--rot" as string]: "-8deg" }} />
             <Swans className="float-art oxblood hidden w-32 md:block" style={{ top: "38%", right: "4%", animationDelay: "-2s" }} />
