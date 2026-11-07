@@ -310,6 +310,7 @@ body {
   /* home page: phone preview 40% smaller (the invitation inside scales with it) */
   .phone-stage .phone-frame {
     width: calc(min(100%, 340px, calc(78svh * 9 / 19.5)) * 0.6);
+    min-width: 0;
     border-radius: 30px;
     padding: 7px;
     box-shadow: 0 0 0 1.5px #3c3132 inset; /* outer shadow is drawn by .phone-stage::before */
@@ -557,6 +558,9 @@ body {
   .phone-frame {
     position: relative;
     width: min(100%, 340px, calc(78svh * 9 / 19.5));
+    /* never collapse in content-sized columns (the invitation inside reports no size of its own) */
+    min-width: min(340px, calc(78svh * 9 / 19.5), calc(100vw - 32px));
+    flex: none;
     aspect-ratio: 9 / 19.5;
     border-radius: 46px;
     padding: 11px;
