@@ -36,14 +36,15 @@ export default async function ThemePage({ params }: { params: Promise<{ slug: st
           variants={t.variants.map((v) => ({ key: v.key, nameAr: v.nameAr, swatch: v.swatch, isDefault: v.isDefault }))}
           header={
             <>
-              <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold">{t.nameAr}</h1>
+              <span className="eyebrow">المجموعة</span>
+              <h1 className="display mt-2 text-4xl">{t.nameAr}</h1>
               <p className="mt-3 leading-8 text-ink-soft">{t.descriptionAr}</p>
               <p className="mt-4 text-3xl font-bold text-burgundy">{formatMoney(t.priceMinor, t.currency)}</p>
               <p className="mt-1 text-sm text-ink-soft">يشمل حتى {settings.defaultGuestLimit} مدعواً — ويمكن زيادة العدد عند الطلب</p>
             </>
           }
           order={
-            <div id="order" className="card mt-6 scroll-mt-24 p-5">
+            <div id="order" className="tile mt-6 scroll-mt-24 p-6">
               <p className="font-semibold">كيف أطلب هذا التصميم؟</p>
               <p className="mt-2 text-sm leading-7 text-ink-soft">{settings.orderInstructions}</p>
               <div className="mt-4 flex flex-wrap gap-2">

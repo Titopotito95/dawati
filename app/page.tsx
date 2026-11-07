@@ -1,8 +1,10 @@
 import Link from "next/link";
 import SiteHeader from "@/components/ui/SiteHeader";
 import SiteFooter from "@/components/ui/SiteFooter";
+import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
 import PhoneFrame from "@/components/invitation/PhoneFrame";
 import InvitationPlayer from "@/components/invitation/InvitationPlayer";
+import { Rings, SealedEnvelope, FlowerSprig, Swans, Glasses, Sparkle } from "@/components/ui/LineArt";
 import { sampleViewModel } from "@/lib/invitation/defaults";
 import { getDb } from "@/lib/db";
 import { listThemes } from "@/lib/services/catalog";
@@ -14,17 +16,17 @@ import { themeThumb } from "@/lib/themes";
 export const dynamic = "force-dynamic";
 
 const STEPS = [
-  { t: "اختر التصميم واللون", d: "تصفّح التصاميم وشاهد الدعوة وهي تُفتح كما سيراها ضيوفك تماماً." },
-  { t: "ادفع نقداً واستلم رمزك", d: "تواصل معنا أو مع ممثلنا وادفع يداً بيد، فتستلم فوراً رمز دخول خاصاً بدعوتك وعدد المدعوين في باقتك." },
-  { t: "خصّص دعوتك", d: "أدخل الرمز، واكتب أسماء العروسين والموعد والمكان، وأضف صوركم وأسماء ضيوفكم." },
-  { t: "أرسل وتابع الردود", d: "لكل ضيف رابط خاص باسمه ترسله عبر واتساب، وتتابع من سيحضر ومن اعتذر لحظة بلحظة." },
+  { t: "اختر التصميم واللون", d: "تصفّح المجموعة وشاهد الدعوة تُفتح كما سيراها ضيوفك تماماً." },
+  { t: "ادفع نقداً واستلم رمزك", d: "تواصل معنا أو مع ممثلنا وادفع يداً بيد، فتستلم فوراً رمز الدخول الخاص بدعوتك." },
+  { t: "خصّص دعوتك", d: "اكتب الأسماء والموعد والمكان، وأضف صوركم وأسماء ضيوفكم." },
+  { t: "أرسل وتابع الردود", d: "لكل ضيف رابط باسمه عبر واتساب، وتتابع من سيحضر لحظة بلحظة." },
 ];
 
 const FAQ = [
-  { q: "هل يحتاج الضيف إلى تطبيق أو حساب؟", a: "لا. يفتح الضيف الرابط مباشرة من واتساب على هاتفه، ويرى دعوته باسمه، ويؤكد حضوره بلمسة." },
+  { q: "هل يحتاج الضيف إلى تطبيق أو حساب؟", a: "لا. يفتح الضيف الرابط مباشرة من واتساب، ويرى دعوته باسمه، ويؤكد حضوره بلمسة." },
   { q: "كيف أدفع؟", a: "الدفع نقداً يداً بيد مع ممثلنا المعتمد أو معنا مباشرة. لا نطلب أي بيانات بطاقة على الموقع." },
-  { q: "ماذا لو فقدت رمز الدخول؟", a: "تواصل معنا وسنتحقق من بياناتك (الاسم والهاتف ورقم الطلب) ثم نصدر لك رمزاً جديداً، ويتوقف الرمز القديم فوراً." },
-  { q: "كم مدة صلاحية رابط الضيف؟", a: "رابط كل ضيف صالح لمدة 7 أيام من إنشائه، ويمكنك تجديده في أي وقت من لوحة دعوتك دون أن يضيع ردّه." },
+  { q: "ماذا لو فقدت رمز الدخول؟", a: "تواصل معنا وبعد التحقق من اسمك وهاتفك ورقم الطلب نصدر لك رمزاً جديداً، ويتوقف القديم فوراً." },
+  { q: "كم مدة صلاحية رابط الضيف؟", a: "رابط كل ضيف صالح 7 أيام من إنشائه، ويمكنك تجديده في أي وقت دون أن يضيع ردّه." },
   { q: "هل يمكنني تعديل الدعوة بعد إرسالها؟", a: "نعم، أي تعديل تحفظه يظهر فوراً لكل الضيوف الذين يملكون روابط فعّالة." },
   { q: "هل تصلح لغير الأعراس؟", a: "نعم: الخطوبة، عقد القران، الحفلات وكل المناسبات الخاصة." },
 ];
@@ -33,145 +35,179 @@ export default async function Home() {
   const db = await getDb();
   const [themes, settings] = await Promise.all([listThemes(db), getSettings(db)]);
   const contact = await orderContact(db);
-  const featured = themes.filter((t) => t.featured).slice(0, 3);
-  const price = themes[0] ? formatMoney(themes[0].priceMinor, themes[0].currency) : "";
+  const first = themes[0];
+  const price = first ? formatMoney(first.priceMinor, first.currency) : "";
   const vm = sampleViewModel("white");
 
   return (
-    <div className="paper min-h-svh">
+    <div className="min-h-svh bg-white">
       <SiteHeader />
       <main>
-        {/* ---------- hero ---------- */}
-        <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-10 pt-8 md:grid-cols-2 md:pt-14">
-          <div className="text-center md:text-start">
-            <p className="badge badge-gold mb-4">دعوات رقمية فاخرة بلمسة دانتيل ولؤلؤ</p>
-            <h1 className="font-[family-name:var(--font-ruqaa)] text-5xl leading-[1.35] text-burgundy sm:text-6xl">دعوتك... بداية حكاية جميلة</h1>
-            <p className="mt-4 font-[family-name:var(--font-display)] text-2xl text-ink">صمّم دعوة زفاف تليق بفرحتك</p>
-            <p className="mx-auto mt-4 max-w-md leading-8 text-ink-soft md:mx-0">
-              ظرف لؤلؤي يُفتح بلمسة على الختم، فتتفتّح أجنحته وتخرج بطاقة باسم ضيفك. رابط خاص لكل ضيف، وتأكيد حضور تتابعه من هاتفك.
+        {/* ---------------- hero: inset cream panel ---------------- */}
+        <section className="hero-panel pb-14 pt-12 sm:pt-16">
+          <div className="relative z-10 mx-auto max-w-3xl px-5 text-center">
+            <span className="eyebrow reveal-up">دعوات رقمية فاخرة · دانتيل ولؤلؤ</span>
+            <h1 className="display reveal-up mt-4 text-[2.6rem] sm:text-6xl" style={{ ["--d" as string]: "0.08s" }}>
+              دعوتك… بداية حكاية جميلة
+            </h1>
+            <p className="reveal-up mx-auto mt-5 max-w-xl text-[17px] leading-8 text-ink-soft" style={{ ["--d" as string]: "0.16s" }}>
+              صمّم دعوة زفاف تليق بفرحتك: ظرف لؤلؤي يُفتح بلمسة على الختم، وبطاقة باسم كل ضيف، وتأكيد حضور تتابعه من هاتفك.
             </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3 md:justify-start">
-              <Link href="/themes" className="btn btn-primary">استكشف التصاميم</Link>
-              <Link href="/demo" className="btn btn-outline">جرّب الدعوة بنفسك</Link>
+            <div className="reveal-up mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3" style={{ ["--d" as string]: "0.24s" }}>
+              <Link href="/themes" className="btn btn-primary">
+                استكشف التصاميم <span aria-hidden="true">←</span>
+              </Link>
+              <Link href="#plans" className="link-arrow">
+                قارن الباقات
+              </Link>
             </div>
-            <p className="mt-5 text-sm text-ink-soft">
-              لديك رمز دعوة؟{" "}
-              <Link href="/access" className="font-semibold text-burgundy underline-offset-4 hover:underline">لدي رمز دخول</Link>
-            </p>
           </div>
-          <div className="flex justify-center">
+
+          <div className="relative mx-auto mt-12 flex max-w-5xl justify-center px-4">
+            {/* floating line art (decorative) */}
+            <Rings className="float-art hidden w-24 sm:block" style={{ top: "6%", right: "12%", ["--rot" as string]: "-8deg" }} />
+            <Swans className="float-art oxblood hidden w-32 md:block" style={{ top: "38%", right: "4%", animationDelay: "-2s" }} />
+            <Glasses className="float-art hidden w-16 sm:block" style={{ bottom: "8%", right: "16%", animationDelay: "-4s", ["--rot" as string]: "6deg" }} />
+            <SealedEnvelope className="float-art oxblood hidden w-28 sm:block" style={{ top: "10%", left: "11%", animationDelay: "-1s", ["--rot" as string]: "7deg" }} />
+            <FlowerSprig className="float-art hidden w-16 md:block" style={{ top: "44%", left: "6%", animationDelay: "-3s" }} />
+            <Sparkle className="float-art w-5" style={{ bottom: "18%", left: "20%", animationDelay: "-5s" }} />
+            <Sparkle className="float-art w-4" style={{ top: "4%", left: "38%", animationDelay: "-2.5s" }} />
             <PhoneFrame label="عرض حي للدعوة">
               <InvitationPlayer vm={vm} showcase />
             </PhoneFrame>
           </div>
+          <p className="mt-8 text-center text-xs font-semibold text-ink-soft">
+            لديك رمز دعوة؟{" "}
+            <Link href="/access" className="text-burgundy underline-offset-4 hover:underline">
+              لدي رمز دخول
+            </Link>
+          </p>
         </section>
 
-        {/* ---------- benefits ---------- */}
-        <section className="mx-auto grid max-w-6xl gap-4 px-4 py-8 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            ["تُفتح كأنها حقيقية", "حركة سينمائية لظرف وأجنحة وختم — ليست صوراً متتالية."],
-            ["باسم كل ضيف", "رابط خاص لكل مدعو يظهر فيه اسمه، دون حساب أو كلمة مرور."],
-            ["تأكيد الحضور", "سأحضر بإذن الله أو أعتذر — وتظهر الردود في لوحتك فوراً."],
-            ["عربية بالكامل", "خطوط عربية أنيقة واتجاه صحيح من اليمين لليسار على كل الهواتف."],
-          ].map(([t, d]) => (
-            <div key={t} className="card p-5">
-              <p className="font-[family-name:var(--font-display)] text-lg font-semibold text-burgundy">{t}</p>
-              <p className="mt-2 text-sm leading-7 text-ink-soft">{d}</p>
+        {/* ---------------- the collection ---------------- */}
+        <section className="mx-auto max-w-6xl px-4 pt-20" aria-labelledby="collection">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <span className="eyebrow">المجموعة</span>
+              <h2 id="collection" className="display mt-2 text-3xl sm:text-4xl">تصاميم تُروى كقصة</h2>
             </div>
-          ))}
-        </section>
-
-        {/* ---------- featured themes ---------- */}
-        <section className="mx-auto max-w-6xl px-4 py-10" aria-labelledby="featured">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <h2 id="featured" className="font-[family-name:var(--font-display)] text-3xl font-semibold">تصاميم مختارة</h2>
-            <Link href="/themes" className="text-sm font-semibold text-burgundy">كل التصاميم ←</Link>
+            <Link href="/themes" className="link-arrow text-sm">
+              كل التصاميم <span aria-hidden="true">←</span>
+            </Link>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((t) => {
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {themes.map((t) => {
               const def = t.variants.find((v) => v.isDefault) ?? t.variants[0];
               return (
-                <article key={t.id} className="card overflow-hidden">
-                  <Link href={`/themes/${t.slug}`} className="block aspect-[3/4] overflow-hidden bg-blush">
-                    <img src={themeThumb(t.renderer, def?.key ?? "white")} alt={`تصميم ${t.nameAr}`} className="h-full w-full object-cover transition duration-700 hover:scale-105" loading="lazy" />
+                <article key={t.id} className="group">
+                  <Link href={`/themes/${t.slug}`} className="tile block overflow-hidden p-5">
+                    <div className="aspect-[3/4] overflow-hidden rounded-xl bg-white shadow-[var(--shadow-elegant)]">
+                      <img
+                        src={themeThumb(t.renderer, def?.key ?? "white")}
+                        alt={`تصميم ${t.nameAr}`}
+                        className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+                        loading="lazy"
+                      />
+                    </div>
                   </Link>
-                  <div className="p-5">
-                    <h3 className="font-[family-name:var(--font-display)] text-xl font-semibold">{t.nameAr}</h3>
-                    <div className="mt-2 flex items-center gap-2" aria-label="الألوان المتاحة">
-                      {t.variants.map((v) => (
-                        <span key={v.key} title={v.nameAr} className="h-5 w-5 rounded-full border border-rose/40" style={{ background: v.swatch }} />
-                      ))}
+                  <div className="mt-4 flex items-start justify-between gap-3 px-1">
+                    <div>
+                      <h3 className="font-[family-name:var(--font-display)] text-xl font-bold text-ink">{t.nameAr}</h3>
+                      <div className="mt-2 flex items-center gap-1.5" aria-label="الألوان المتاحة">
+                        {t.variants.map((v) => (
+                          <span key={v.key} title={v.nameAr} className="h-4 w-4 rounded-full border border-[var(--hairline)]" style={{ background: v.swatch }} />
+                        ))}
+                      </div>
                     </div>
-                    <p className="mt-3 text-lg font-bold text-burgundy">{formatMoney(t.priceMinor, t.currency)}</p>
-                    <div className="mt-4 flex gap-2">
-                      <Link href={`/themes/${t.slug}`} className="btn btn-outline btn-sm">معاينة التصميم</Link>
-                      <Link href={`/themes/${t.slug}#order`} className="btn btn-primary btn-sm">اختيار التصميم</Link>
-                    </div>
+                    <p className="text-lg font-semibold text-burgundy">{formatMoney(t.priceMinor, t.currency)}</p>
+                  </div>
+                  <div className="mt-4 flex gap-2 px-1">
+                    <Link href={`/themes/${t.slug}`} className="btn btn-outline btn-sm">معاينة التصميم</Link>
+                    <Link href={`/themes/${t.slug}#order`} className="btn btn-primary btn-sm">اختيار التصميم</Link>
                   </div>
                 </article>
               );
             })}
+            <div className="tile flex flex-col items-center justify-center p-8 text-center text-ink-soft">
+              <Sparkle className="w-6 text-gold" />
+              <p className="mt-3 font-[family-name:var(--font-display)] text-xl text-ink">تصاميم جديدة قريباً</p>
+              <p className="mt-2 text-sm leading-7">ألوان ملكية، أسود وذهبي، عنابي، شمبانيا، وردي ترابي وغيرها.</p>
+            </div>
           </div>
         </section>
 
-        {/* ---------- how it works ---------- */}
-        <section id="how" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-12">
-          <h2 className="mb-8 text-center font-[family-name:var(--font-display)] text-3xl font-semibold">كيف تعمل؟</h2>
-          <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* ---------------- how it works ---------------- */}
+        <section id="how" className="mx-auto max-w-6xl scroll-mt-20 px-4 pt-24">
+          <div className="text-center">
+            <span className="eyebrow">كيف تعمل</span>
+            <h2 className="display mt-2 text-3xl sm:text-4xl">أربع خطوات بسيطة</h2>
+          </div>
+          <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s, i) => (
-              <li key={s.t} className="card relative p-5 pt-8">
-                <span className="absolute -top-4 right-5 grid h-9 w-9 place-items-center rounded-full bg-burgundy font-bold text-white shadow">{i + 1}</span>
-                <p className="font-semibold">{s.t}</p>
+              <li key={s.t} className="card p-6">
+                <span className="font-[family-name:var(--font-display)] text-4xl text-gold">{["١", "٢", "٣", "٤"][i]}</span>
+                <p className="mt-3 font-semibold text-ink">{s.t}</p>
                 <p className="mt-2 text-sm leading-7 text-ink-soft">{s.d}</p>
               </li>
             ))}
           </ol>
         </section>
 
-        {/* ---------- pricing ---------- */}
-        <section id="pricing" className="mx-auto max-w-3xl scroll-mt-24 px-4 py-12">
-          <div className="card overflow-hidden text-center">
-            <div className="bg-burgundy px-6 py-8 text-white">
-              <p className="font-[family-name:var(--font-display)] text-xl">باقة الدعوة الكاملة</p>
-              <p className="mt-3 text-5xl font-bold">{price}</p>
-              <p className="mt-2 text-sm opacity-85">دفعة واحدة نقداً — بدون اشتراكات</p>
-            </div>
-            <ul className="grid gap-3 px-6 py-7 text-start text-[15px] sm:grid-cols-2">
-              {[
-                "دعوة متحركة فاخرة بتصميم من اختيارك",
-                `حتى ${settings.defaultGuestLimit} مدعواً (يمكن زيادة العدد عند الطلب)`,
-                "رابط خاص باسم كل ضيف",
-                "تأكيد الحضور ومتابعة الردود",
-                "صور العروسين وموقع الحفل على الخريطة",
-                "تعديل الدعوة في أي وقت",
-              ].map((x) => (
-                <li key={x} className="flex items-start gap-2">
-                  <span className="mt-1 text-gold">◆</span>
-                  <span>{x}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="px-6 pb-8">
-              <p className="mx-auto mb-4 max-w-md text-sm leading-7 text-ink-soft">{settings.orderInstructions}</p>
+        {/* ---------------- plans ---------------- */}
+        <section id="plans" className="mx-auto max-w-5xl scroll-mt-20 px-4 pt-24">
+          <div className="text-center">
+            <span className="eyebrow">الباقات</span>
+            <h2 className="display mt-2 text-3xl sm:text-4xl">دفعة واحدة، بدون اشتراكات</h2>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <div className="rounded-[22px] bg-plan-1 p-7 text-plan-1-text">
+              <p className="text-sm font-semibold">الباقة الكاملة</p>
+              <p className="mt-3 font-[family-name:var(--font-display)] text-5xl font-bold">{price}</p>
+              <p className="mt-1 text-sm opacity-80">حتى {settings.defaultGuestLimit} مدعواً</p>
+              <ul className="mt-6 space-y-2.5 text-[15px]">
+                {["دعوة متحركة فاخرة بتصميم من اختيارك", "رابط خاص باسم كل ضيف", "تأكيد الحضور ومتابعة الردود", "صور العروسين وموقع الحفل على الخريطة", "تعديل الدعوة في أي وقت"].map((x) => (
+                  <li key={x} className="flex items-start gap-2">
+                    <span aria-hidden="true">✓</span>
+                    <span>{x}</span>
+                  </li>
+                ))}
+              </ul>
               {contact.whatsappUrl ? (
-                <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                  {contact.viaAffiliate ? `اطلب عبر ممثلنا ${contact.name}` : "اطلب دعوتك عبر واتساب"}
+                <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary mt-7 w-full">
+                  {contact.viaAffiliate ? `اطلب عبر ممثلنا ${contact.name}` : "اطلب دعوتك"}
                 </a>
               ) : (
-                <Link href="/themes" className="btn btn-primary">اختر تصميمك</Link>
+                <Link href="/themes" className="btn btn-primary mt-7 w-full">اختر تصميمك</Link>
               )}
+            </div>
+            <div className="rounded-[22px] bg-plan-2 p-7 text-plan-2-text">
+              <p className="text-sm font-semibold">مناسبات كبيرة</p>
+              <p className="mt-3 font-[family-name:var(--font-display)] text-4xl font-bold">عدد أكبر من المدعوين؟</p>
+              <p className="mt-3 text-[15px] leading-8 opacity-90">
+                نحدد عدد المدعوين في باقتك حسب مناسبتك عند الطلب. تواصل معنا لنخبرك بالسعر المناسب لعدد ضيوفك.
+              </p>
+              <p className="mt-4 text-sm leading-7 opacity-80">{settings.orderInstructions}</p>
+              {contact.whatsappUrl ? (
+                <a href={contact.whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline mt-7 w-full border-current text-current">
+                  تواصل معنا
+                </a>
+              ) : null}
             </div>
           </div>
         </section>
 
-        {/* ---------- FAQ ---------- */}
-        <section id="faq" className="mx-auto max-w-3xl scroll-mt-24 px-4 py-12">
-          <h2 className="mb-6 text-center font-[family-name:var(--font-display)] text-3xl font-semibold">الأسئلة الشائعة</h2>
-          <div className="space-y-3">
+        {/* ---------------- FAQ ---------------- */}
+        <section id="faq" className="mx-auto max-w-3xl scroll-mt-20 px-4 pt-24">
+          <div className="text-center">
+            <span className="eyebrow">الأسئلة الشائعة</span>
+            <h2 className="display mt-2 text-3xl sm:text-4xl">كل ما تودّ معرفته</h2>
+          </div>
+          <div className="mt-8 divide-y divide-[var(--hairline)] border-y border-[var(--hairline)]">
             {FAQ.map((f) => (
-              <details key={f.q} className="card group p-5">
-                <summary className="cursor-pointer list-none font-semibold marker:hidden">
-                  <span className="inline-block w-5 text-gold transition group-open:rotate-45">+</span> {f.q}
+              <details key={f.q} className="group py-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink marker:hidden">
+                  {f.q}
+                  <span className="text-xl text-burgundy transition group-open:rotate-45" aria-hidden="true">+</span>
                 </summary>
                 <p className="mt-3 leading-8 text-ink-soft">{f.a}</p>
               </details>
@@ -179,15 +215,18 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-3xl px-4 py-8 text-center">
-          <div className="card p-8">
-            <p className="font-[family-name:var(--font-display)] text-2xl font-semibold">استلمت رمز دعوتك؟</p>
-            <p className="mt-2 text-ink-soft">ادخل إلى لوحة دعوتك لتخصيصها وإضافة ضيوفك.</p>
-            <Link href="/access" className="btn btn-primary mt-5">لدي رمز دخول</Link>
+        {/* ---------------- closing band ---------------- */}
+        <section className="mx-[var(--hero-inset)] mt-24 overflow-hidden rounded-[var(--hero-radius)] bg-burgundy px-6 py-14 text-center text-ivory">
+          <p className="font-[family-name:var(--font-display)] text-3xl font-bold sm:text-4xl">استلمت رمز دعوتك؟</p>
+          <p className="mx-auto mt-3 max-w-md text-[15px] leading-8 opacity-85">ادخل إلى لوحة دعوتك لتكتب تفاصيل مناسبتك وتضيف ضيوفك وترسل الروابط.</p>
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <Link href="/access" className="btn btn-light">لدي رمز دخول</Link>
+            <Link href="/demo" className="btn border border-ivory/50 text-ivory hover:bg-white/10">جرّب الدعوة بنفسك</Link>
           </div>
         </section>
       </main>
       <SiteFooter />
+      <WhatsAppFloat href={contact.whatsappUrl} label={contact.viaAffiliate ? `تواصل مع ${contact.name} عبر واتساب` : "تواصل معنا عبر واتساب"} />
     </div>
   );
 }

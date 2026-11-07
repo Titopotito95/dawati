@@ -16,8 +16,9 @@ export default async function ThemesPage() {
     <div className="paper min-h-svh">
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-4 py-10">
-        <h1 className="font-[family-name:var(--font-display)] text-4xl font-semibold">التصاميم</h1>
-        <p className="mt-2 text-ink-soft">كل تصميم يأتي بألوان منسّقة بعناية. اضغط «معاينة التصميم» لترى الدعوة تُفتح كما سيراها ضيوفك.</p>
+        <span className="eyebrow">المجموعة</span>
+        <h1 className="display mt-2 text-4xl">تصاميم تُروى كقصة</h1>
+        <p className="mt-3 text-ink-soft">كل تصميم يأتي بألوان منسّقة بعناية. اضغط «معاينة التصميم» لترى الدعوة تُفتح كما سيراها ضيوفك.</p>
         {themes.length === 0 ? (
           <p className="card mt-8 p-8 text-center text-ink-soft">لا توجد تصاميم متاحة حالياً.</p>
         ) : (
@@ -25,19 +26,21 @@ export default async function ThemesPage() {
             {themes.map((t) => {
               const def = t.variants.find((v) => v.isDefault) ?? t.variants[0];
               return (
-                <article key={t.id} className="card overflow-hidden">
-                  <Link href={`/themes/${t.slug}`} className="block aspect-[3/4] overflow-hidden bg-blush">
-                    <img src={themeThumb(t.renderer, def?.key ?? "white")} alt={`تصميم ${t.nameAr}`} className="h-full w-full object-cover" loading="lazy" />
+                <article key={t.id} className="group">
+                  <Link href={`/themes/${t.slug}`} className="tile block overflow-hidden p-5">
+                    <div className="aspect-[3/4] overflow-hidden rounded-xl bg-white shadow-[var(--shadow-elegant)]">
+                      <img src={themeThumb(t.renderer, def?.key ?? "white")} alt={`تصميم ${t.nameAr}`} className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" loading="lazy" />
+                    </div>
                   </Link>
-                  <div className="p-5">
+                  <div className="px-1 pt-4">
                     <div className="flex items-start justify-between gap-2">
-                      <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold">{t.nameAr}</h2>
+                      <h2 className="font-[family-name:var(--font-display)] text-xl font-bold">{t.nameAr}</h2>
                       {t.featured ? <span className="badge badge-gold">مميز</span> : null}
                     </div>
                     <p className="mt-2 line-clamp-2 text-sm leading-7 text-ink-soft">{t.descriptionAr}</p>
                     <div className="mt-3 flex items-center gap-2" aria-label="الألوان المتاحة">
                       {t.variants.map((v) => (
-                        <span key={v.key} title={v.nameAr} className="h-5 w-5 rounded-full border border-rose/40" style={{ background: v.swatch }} />
+                        <span key={v.key} title={v.nameAr} className="h-4 w-4 rounded-full border border-[var(--hairline)]" style={{ background: v.swatch }} />
                       ))}
                     </div>
                     <p className="mt-3 text-lg font-bold text-burgundy">{formatMoney(t.priceMinor, t.currency)}</p>
