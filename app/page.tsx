@@ -54,12 +54,6 @@ export default async function Home() {
               <InvitationPlayer vm={vm} showcase />
             </PhoneFrame>
           </div>
-          <p className="relative z-10 mt-8 text-center text-xs font-semibold text-ink-soft">
-            لديك رمز دعوة؟{" "}
-            <Link href="/access" className="text-burgundy underline-offset-4 hover:underline">
-              لدي رمز دخول
-            </Link>
-          </p>
         </section>
 
         {/* ---------------- the collection ---------------- */}
@@ -123,7 +117,7 @@ export default async function Home() {
           <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s, i) => (
               <li key={s.t} className="card p-6">
-                <span className="font-[family-name:var(--font-display)] text-4xl text-gold">{["١", "٢", "٣", "٤"][i]}</span>
+                <span className="font-[family-name:var(--font-display)] text-4xl text-gold">{i + 1}</span>
                 <p className="mt-3 font-semibold text-ink">{s.t}</p>
                 <p className="mt-2 text-sm leading-7 text-ink-soft">{s.d}</p>
               </li>

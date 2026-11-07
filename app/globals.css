@@ -128,21 +128,34 @@ body {
   .phone-stage {
     isolation: isolate;
   }
-  .phone-stage::after {
+  .phone-stage::before { /* short ambient shadow behind the phone (not mirrored) */
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: min(calc(100% - 32px), 340px, calc(78svh * 9 / 19.5));
+    transform: translateX(-50%);
+    border-radius: 46px;
+    box-shadow: 0 12px 26px rgba(43, 25, 25, 0.2);
+  }
+  .phone-stage::after { /* thin contact shadow where the phone meets the floor */
     content: "";
     position: absolute;
     z-index: -1;
     left: 50%;
-    bottom: -12px;
-    width: min(72vw, 270px);
-    height: 34px;
+    bottom: -5px;
+    width: min(62vw, 240px);
+    height: 12px;
     transform: translateX(-50%);
     border-radius: 50%;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(58, 38, 30, 0.45), rgba(58, 38, 30, 0) 100%);
-    filter: blur(5px);
+    background: radial-gradient(50% 50% at 50% 50%, rgba(40, 26, 22, 0.4), rgba(40, 26, 22, 0) 100%);
+    filter: blur(3px);
   }
   .phone-stage .phone-frame {
-    -webkit-box-reflect: below 4px linear-gradient(to bottom, transparent 74%, rgba(0, 0, 0, 0.22));
+    box-shadow: 0 0 0 1.5px #3c3132 inset; /* outer shadow moved to ::before so the mirror image has no square edge */
+    -webkit-box-reflect: below 2px linear-gradient(to bottom, transparent 90%, rgba(0, 0, 0, 0.16));
   }
 
   /* home-page header: see-through over the video (a faint light veil keeps the logo and links legible),

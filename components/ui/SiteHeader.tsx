@@ -19,13 +19,13 @@ export default function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           : "sticky top-0 z-30 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/75"
       }
     >
-      {/* phones: menu · name in the middle (alternates with a diamond) · balancing space */}
+      {/* phones: balancing space · name in the middle (alternates with a diamond) · menu on the left */}
       <div className="relative grid h-16 grid-cols-[44px_1fr_44px] items-center px-3 md:hidden">
+        <span aria-hidden="true" />
+        <LogoSwap />
         <MobileMenu
           links={[...NAV, { href: "/access", label: "لدي رمز دخول" }, { href: "/themes", label: "استكشف التصاميم ←" }]}
         />
-        <LogoSwap />
-        <span aria-hidden="true" />
       </div>
 
       {/* tablets and desktops */}

@@ -9,7 +9,7 @@ export default async function OwnerOverview() {
   const { db } = await requireOwner();
   const s = await overviewStats(db);
   const cur = "LYD";
-  const fmtDay = (d: string) => new Intl.DateTimeFormat("ar-LY", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(d + "T12:00:00Z"));
+  const fmtDay = (d: string) => new Intl.DateTimeFormat("ar-LY-u-nu-latn", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(d + "T12:00:00Z"));
   const format: Record<string, string> = Object.fromEntries(s.series.map((x) => [x.date, formatMoney(x.amountMinor, cur)]));
   return (
     <div className="space-y-6">

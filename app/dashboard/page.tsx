@@ -40,11 +40,11 @@ export default async function DashboardHome() {
         <div className="card p-5">
           <p className="font-semibold">خطوات سريعة</p>
           <ol className="mt-3 space-y-2 text-sm">
-            <li><Link className="text-burgundy hover:underline" href="/dashboard/edit">١. اكتب تفاصيل الدعوة</Link></li>
-            <li><Link className="text-burgundy hover:underline" href="/dashboard/design">٢. اختر اللون والصفحات والصور</Link></li>
-            <li><Link className="text-burgundy hover:underline" href="/dashboard/guests">٣. أضف أسماء المدعوين</Link></li>
-            <li><Link className="text-burgundy hover:underline" href="/dashboard/links">٤. أرسل الروابط عبر واتساب</Link></li>
-            <li><Link className="text-burgundy hover:underline" href="/dashboard/rsvp">٥. تابع تأكيد الحضور</Link></li>
+            <li><Link className="text-burgundy hover:underline" href="/dashboard/edit">1. اكتب تفاصيل الدعوة</Link></li>
+            <li><Link className="text-burgundy hover:underline" href="/dashboard/design">2. اختر اللون والصفحات والصور</Link></li>
+            <li><Link className="text-burgundy hover:underline" href="/dashboard/guests">3. أضف أسماء المدعوين</Link></li>
+            <li><Link className="text-burgundy hover:underline" href="/dashboard/links">4. أرسل الروابط عبر واتساب</Link></li>
+            <li><Link className="text-burgundy hover:underline" href="/dashboard/rsvp">5. تابع تأكيد الحضور</Link></li>
           </ol>
         </div>
       </div>

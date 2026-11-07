@@ -1,9 +1,10 @@
-/** Arabic date/time formatting with Arabic-Indic digits where appropriate. */
+/** Arabic date/time formatting; numbers are always shown with English digits (0-9). */
 const AR_DAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
 const AR_MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
 
+/** Kept under its old name for existing callers: returns English digits (0-9). */
 export function toArabicDigits(s: string | number): string {
-  return String(s).replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]);
+  return String(s).replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
 }
 
 export function parseLocalDate(iso: string): Date | null {
@@ -37,7 +38,7 @@ export function formatDateTimeAr(d: Date | string | null | undefined): string {
   if (!d) return "—";
   const dt = typeof d === "string" ? new Date(d) : d;
   if (Number.isNaN(dt.getTime())) return "—";
-  return new Intl.DateTimeFormat("ar-LY", {
+  return new Intl.DateTimeFormat("ar-LY-u-nu-latn", {
     year: "numeric",
     month: "long",
     day: "numeric",
