@@ -1,0 +1,45 @@
+{
+  "name": "dawati",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Premium Arabic animated invitation service (token-based customer, affiliate and guest access)",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "node scripts/e2e.mjs",
+    "assets": "python3 scripts/build_theme_assets.py",
+    "db:migrate": "tsx --conditions=react-server scripts/migrate.ts",
+    "owner:create": "tsx --conditions=react-server scripts/create-owner.ts"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "0.5.15",
+    "@fontsource/amiri": "5.3.0",
+    "@fontsource/aref-ruqaa": "5.3.0",
+    "@fontsource/cairo": "5.3.0",
+    "@fontsource/el-messiri": "5.3.0",
+    "gsap": "3.15.1",
+    "next": "15.5.29",
+    "pg": "8.23.1",
+    "qrcode": "1.5.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "^0.0.1",
+    "sharp": "0.35.5",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.5",
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "tailwindcss": "4.3.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}

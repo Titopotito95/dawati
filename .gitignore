@@ -1,0 +1,12 @@
+node_modules
+.next
+.data
+.env
+.env.local
+assets-src/debug
+test-results
+*.log
+next-env.d.ts
+
+.next-prod
+tsconfig.tsbuildinfo
