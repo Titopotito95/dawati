@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import type { InvitationViewModel, RsvpStatus } from "@/lib/invitation/types";
+import type { InvitationViewModel } from "@/lib/invitation/types";
 import { formatEventDate, formatEventTime, toArabicDigits, parseLocalDate } from "@/lib/invitation/format";
-import { BeadedScallopBand, Divider, RibbonBow, SwanPair } from "./ornaments";
+import { Divider, RibbonBow, SwanPair } from "./ornaments";
 
 /** Libya observes UTC+2 all year. Kept as a constant so it can become a per-invitation setting. */
 const EVENT_TZ_OFFSET_MIN = 120;
@@ -115,96 +115,6 @@ function safeHttpsUrl(u: string): string | null {
 
 function LaceBand({ src, flip }: { src: string; flip?: boolean }) {
   return <img className={`pl-band${flip ? " pl-band-flip" : ""}`} src={src} alt="" aria-hidden="true" decoding="async" loading="lazy" />;
-}
-
-function Rsvp({ vm }: { vm: InvitationViewModel }) {
-  const g = vm.guest;
-  const maxParty = Math.max(1, g?.maxPartySize ?? vm.settings.defaultMaxPartySize ?? 1);
-  const [status, setStatus] = useState<RsvpStatus | null>(g?.rsvp?.status ?? null);
-  const [party, setParty] = useState<number>(g?.rsvp?.partySize ?? 1);
-  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">(g?.rsvp ? "saved" : "idle");
-  const [err, setErr] = useState("");
-  const isGuest = vm.mode === "guest" && !!vm.guestToken;
-
-  async function submit(next: RsvpStatus) {
-    setStatus(next);
-    setErr("");
-    if (!isGuest) {
-      setState("saved");
-      return;
-    }
-    setState("saving");
-    try {
-      const res = await fetch("/api/guest/rsvp", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token: vm.guestToken, status: next, partySize: next === "accepted" ? party : 0 }),
-        credentials: "omit",
-        referrerPolicy: "no-referrer",
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "تعذر حفظ ردكم، حاولوا مرة أخرى");
-      setState("saved");
-    } catch (e) {
-      setState("error");
-      setErr(e instanceof Error ? e.message : "تعذر حفظ ردكم، حاولوا مرة أخرى");
-    }
-  }
-
-  if (!vm.settings.rsvpEnabled) return null;
-  return (
-    <div className="pl-rsvp-box">
-      {g?.name ? (
-        <p className="pl-text pl-rv" style={{ ["--i" as string]: 1 }}>
-          {g.name}
-        </p>
-      ) : null}
-      {vm.settings.allowPartySize && maxParty > 1 ? (
-        <div className="pl-rv" style={{ ["--i" as string]: 2 }}>
-          <div className="pl-note">عدد الحاضرين (الحد الأقصى {toArabicDigits(maxParty)})</div>
-          <div className="pl-stepper" aria-label="عدد الحاضرين">
-            <button type="button" aria-label="زيادة" onClick={() => setParty((p) => Math.min(maxParty, p + 1))}>
-              +
-            </button>
-            <span aria-live="polite">{toArabicDigits(party)}</span>
-            <button type="button" aria-label="إنقاص" onClick={() => setParty((p) => Math.max(1, p - 1))}>
-              −
-            </button>
-          </div>
-        </div>
-      ) : null}
-      <div className="pl-rv" style={{ ["--i" as string]: 3 }}>
-        <button
-          type="button"
-          className="pl-btn"
-          aria-pressed={status === "accepted"}
-          disabled={state === "saving"}
-          onClick={() => submit("accepted")}
-        >
-          سأحضر بإذن الله
-        </button>
-        <button
-          type="button"
-          className="pl-btn"
-          aria-pressed={status === "declined"}
-          disabled={state === "saving"}
-          onClick={() => submit("declined")}
-        >
-          أعتذر عن الحضور
-        </button>
-      </div>
-      <div aria-live="polite">
-        {state === "saving" ? <p className="pl-note">جارٍ حفظ ردكم…</p> : null}
-        {state === "saved" && status ? (
-          <p className="pl-note">
-            {status === "accepted" ? "شكراً لكم! تم تأكيد حضوركم، ننتظركم بكل شوق." : "شكراً لإبلاغنا، نتمنى لقاءكم في مناسبات قادمة."}
-            {!isGuest ? <><br />(معاينة فقط — لا يتم حفظ الرد)</> : null}
-          </p>
-        ) : null}
-        {state === "error" ? <p className="pl-note pl-error">{err}</p> : null}
-      </div>
-    </div>
-  );
 }
 
 export function Sections({
@@ -328,24 +238,6 @@ export function Sections({
           </p>
           <Divider className="pl-divider pl-rv" />
         </section>
-      ) : null}
-
-      {p.rsvp && vm.settings.rsvpEnabled ? (
-        <>
-          <LaceBand src={band} />
-          <section className="pl-section pl-section-burgundy" data-reveal>
-            <RibbonBow className="pl-bow pl-rv" />
-            <h2 className="pl-title pl-rv" style={{ ["--i" as string]: 1 }}>
-              تأكيد الحضور
-            </h2>
-            <p className="pl-note pl-rv" style={{ ["--i" as string]: 1 }}>
-              يسعدنا تأكيد حضوركم
-            </p>
-            <Rsvp vm={vm} />
-            <BeadedScallopBand className="pl-bow pl-rv" />
-          </section>
-          <LaceBand src={band} flip />
-        </>
       ) : null}
 
       {p.thanks ? (

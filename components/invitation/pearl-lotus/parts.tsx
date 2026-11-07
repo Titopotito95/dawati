@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type RefObject } from "react";
-import type { InvitationViewModel, RsvpStatus } from "@/lib/invitation/types";
+import type { InvitationViewModel } from "@/lib/invitation/types";
 import { parseLocalDate, toArabicDigits } from "@/lib/invitation/format";
 
 /** Shared pieces of the Pearl Lotus theme (same behaviour as the other themes, own styling). */
@@ -110,76 +110,4 @@ export function downloadIcs(vm: InvitationViewModel, start: Date) {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
-
-export function Rsvp({ vm }: { vm: InvitationViewModel }) {
-  const g = vm.guest;
-  const maxParty = Math.max(1, g?.maxPartySize ?? vm.settings.defaultMaxPartySize ?? 1);
-  const [status, setStatus] = useState<RsvpStatus | null>(g?.rsvp?.status ?? null);
-  const [party, setParty] = useState<number>(g?.rsvp?.partySize ?? 1);
-  const [state, setState] = useState<"idle" | "saving" | "saved" | "error">(g?.rsvp ? "saved" : "idle");
-  const [err, setErr] = useState("");
-  const isGuest = vm.mode === "guest" && !!vm.guestToken;
-
-  async function submit(next: RsvpStatus) {
-    setStatus(next);
-    setErr("");
-    if (!isGuest) {
-      setState("saved");
-      return;
-    }
-    setState("saving");
-    try {
-      const res = await fetch("/api/guest/rsvp", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ token: vm.guestToken, status: next, partySize: next === "accepted" ? party : 0 }),
-        credentials: "omit",
-        referrerPolicy: "no-referrer",
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "تعذر حفظ ردكم، حاولوا مرة أخرى");
-      setState("saved");
-    } catch (e) {
-      setState("error");
-      setErr(e instanceof Error ? e.message : "تعذر حفظ ردكم، حاولوا مرة أخرى");
-    }
-  }
-
-  return (
-    <div className="lt-rsvp lt-rv" style={{ ["--i" as string]: 1 }}>
-      {vm.settings.allowPartySize && maxParty > 1 ? (
-        <div className="lt-party">
-          <span className="lt-note">عدد الحاضرين (حتى {toArabicDigits(maxParty)})</span>
-          <div className="lt-stepper" aria-label="عدد الحاضرين">
-            <button type="button" aria-label="زيادة" onClick={() => setParty((n) => Math.min(maxParty, n + 1))}>
-              +
-            </button>
-            <span aria-live="polite">{toArabicDigits(party)}</span>
-            <button type="button" aria-label="إنقاص" onClick={() => setParty((n) => Math.max(1, n - 1))}>
-              −
-            </button>
-          </div>
-        </div>
-      ) : null}
-      <div className="lt-rsvp-btns">
-        <button type="button" className="lt-btn lt-btn-solid" aria-pressed={status === "accepted"} disabled={state === "saving"} onClick={() => submit("accepted")}>
-          سأحضر بإذن الله
-        </button>
-        <button type="button" className="lt-btn" aria-pressed={status === "declined"} disabled={state === "saving"} onClick={() => submit("declined")}>
-          أعتذر عن الحضور
-        </button>
-      </div>
-      <div aria-live="polite">
-        {state === "saving" ? <p className="lt-note">جارٍ حفظ ردكم…</p> : null}
-        {state === "saved" && status ? (
-          <p className="lt-note">
-            {status === "accepted" ? "شكراً لكم! تم تأكيد حضوركم." : "شكراً لإبلاغنا، نتمنى لقاءكم قريباً."}
-            {!isGuest ? " (معاينة — لا يُحفظ الرد)" : null}
-          </p>
-        ) : null}
-        {state === "error" ? <p className="lt-note lt-error">{err}</p> : null}
-      </div>
-    </div>
-  );
 }

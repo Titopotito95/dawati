@@ -29,6 +29,9 @@
 }
 .lt-scroll::-webkit-scrollbar { display: none; }
 .lt-root[data-phase="open"] .lt-scroll { overflow-y: auto; }
+/* phone mock-up on the website: scrolls by itself only, so touches and wheel scroll the page itself */
+.lt-root[data-showcase] .lt-scroll,
+.lt-root[data-showcase][data-phase="open"] .lt-scroll { overflow-y: hidden; overscroll-behavior: auto; }
 
 .lt-page {
   position: relative;
@@ -255,8 +258,11 @@
   height: var(--mh);
   z-index: 3;
   transform-origin: 50% 50%;
-  will-change: transform, filter;
+  will-change: filter;
 }
+.lt-spin3d { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+.lt-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.lt-face-back { transform: rotateY(180deg); }
 .lt-sheen { /* light glinting on the gold while it spins */
   position: absolute;
   inset: 0;
@@ -269,17 +275,13 @@
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
 }
-.lt-sheen-in {
+.lt-sheen-in { /* a band of light sweeping across the gold as it turns */
   position: absolute;
-  inset: -30%;
-  background: conic-gradient(
-    from 0deg,
-    rgba(255, 244, 214, 0) 0deg 40deg,
-    rgba(255, 244, 214, 0.95) 58deg,
-    rgba(255, 244, 214, 0) 76deg 196deg,
-    rgba(255, 236, 200, 0.7) 214deg,
-    rgba(255, 236, 200, 0) 232deg 360deg
-  );
+  top: 0;
+  bottom: 0;
+  left: -40%;
+  right: -40%;
+  background: linear-gradient(100deg, rgba(255, 246, 222, 0) 38%, rgba(255, 246, 222, 0.9) 50%, rgba(255, 246, 222, 0) 62%);
 }
 .lt-hint {
   position: absolute;

@@ -5,12 +5,13 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import type { InvitationViewModel } from "@/lib/invitation/types";
 import { formatEventDate, formatEventTime } from "@/lib/invitation/format";
 import manifestJson from "@/public/assets/themes/pearl-lotus/v1/manifest.json";
-import { Countdown, Rsvp, downloadIcs, eventStartUtc, safeHttpsUrl, useReveal } from "./parts";
+import { Countdown, downloadIcs, eventStartUtc, safeHttpsUrl, useReveal } from "./parts";
 import "./pearl-lotus.css";
 
 /**
  * Theme "Pearl Lotus" (pearl-lotus@1).
- * Closed pearl cover → the gold medallion spins (≈1.3 s) and settles upright → the cover parts along
+ * Closed pearl cover → the gold medallion spins like a top on its vertical axis (≈1.4 s) and settles
+ * facing front → the cover parts along
  * its vertical gold seam into two sliding doors (≈1.05 s) → the first page, already underneath, is
  * revealed → the guest scrolls through three pages. All wording is live text from the dashboard.
  */
@@ -50,6 +51,28 @@ function usePrefersReducedMotion() {
   return r;
 }
 
+/** Runs `cb` once the home-page cinematic intro has finished (at once when there is none). */
+function afterIntro(cb: () => void): () => void {
+  const html = document.documentElement;
+  if (!document.getElementById("cinematic-intro") || html.classList.contains("intro-done")) {
+    cb();
+    return () => undefined;
+  }
+  let done = false;
+  const mo = new MutationObserver(() => {
+    if (!done && html.classList.contains("intro-done")) {
+      done = true;
+      mo.disconnect();
+      cb();
+    }
+  });
+  mo.observe(html, { attributes: true, attributeFilter: ["class"] });
+  return () => {
+    done = true;
+    mo.disconnect();
+  };
+}
+
 /** The medallion artwork; rendered in the spinner and (static) in each door. */
 function Medal({ base, fill }: { base: string; fill?: boolean }) {
   return (
@@ -73,8 +96,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
   const doorL = useRef<HTMLDivElement>(null);
   const doorR = useRef<HTMLDivElement>(null);
   const spinRef = useRef<HTMLDivElement>(null);
-  const sheenRef = useRef<HTMLDivElement>(null);
-  const sheenInRef = useRef<HTMLDivElement>(null);
+  const spin3dRef = useRef<HTMLDivElement>(null);
   const hintRef = useRef<HTMLParagraphElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -89,7 +111,6 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
   const start = useMemo(() => eventStartUtc(c.eventDate, c.eventTime), [c.eventDate, c.eventTime]);
   const maps = c.mapsUrl ? safeHttpsUrl(c.mapsUrl) : null;
   const showVenue = p.venue && !!(c.venueName || c.address);
-  const showRsvp = p.rsvp && vm.settings.rsvpEnabled;
 
   // ---------- preload the cover and the first page, then show the closed invitation ----------
   useEffect(() => {
@@ -127,9 +148,10 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
 
   const buildTimeline = useCallback(() => {
     const spin = spinRef.current!;
-    const sheen = sheenRef.current!;
-    const sheenIn = sheenInRef.current!;
+    const spin3d = spin3dRef.current!;
     const cover = coverRef.current!;
+    const sheens = spin.querySelectorAll<HTMLElement>(".lt-sheen");
+    const sheenIns = spin.querySelectorAll<HTMLElement>(".lt-sheen-in");
     const statics = cover.querySelectorAll<HTMLElement>(".lt-door .lt-medal");
     const shadows = cover.querySelectorAll<HTMLElement>(".lt-door-shadow");
     const words = rootRef.current!.querySelectorAll<HTMLElement>(".lt-p1 .lt-rv");
@@ -137,29 +159,34 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
     let lastT = performance.now();
     const tl = gsap.timeline();
     gsap.set(words, { autoAlpha: 0, y: 14 });
+    gsap.set(spin3d, { transformPerspective: 1100, rotationY: 0 });
     tl.to(hintRef.current, { autoAlpha: 0, duration: 0.25 }, 0);
-    // 1) medallion spin: quick acceleration, fast spin, smooth deceleration, upright again (5 turns)
+    // 1) medallion spins like a top / Beyblade on its vertical axis: quick spin-up, fast turns,
+    //    smooth slow-down, ending exactly face-on (4 full turns)
     tl.to(
-      spin,
+      spin3d,
       {
-        rotation: 1800,
-        duration: 1.3,
+        rotationY: 1440,
+        duration: 1.4,
         ease: "power3.inOut",
         onUpdate: () => {
-          const r = Number(gsap.getProperty(spin, "rotation")) || 0;
+          const r = Number(gsap.getProperty(spin3d, "rotationY")) || 0;
           const now = performance.now();
           const v = Math.abs(r - lastR) / Math.max(1, now - lastT); // deg per ms
           lastR = r;
           lastT = now;
-          const blur = Math.min(1.6, v * 0.38);
-          spin.style.filter = `blur(${blur.toFixed(2)}px) drop-shadow(0 ${(3 + v * 1.6).toFixed(1)}px ${(6 + v * 2.6).toFixed(1)}px rgba(92,58,34,0.3))`;
-          gsap.set(sheenIn, { rotation: -r }); // the light stays put while the gold turns under it
+          const th = ((r % 360) + 360) % 360;
+          const face = th <= 90 ? th : th < 270 ? th - 180 : th - 360; // visible side's angle, -90..90
+          const rad = (face * Math.PI) / 180;
+          const glint = Math.pow(Math.max(0, Math.cos(rad - 0.35)), 10); // light catching the gold
+          gsap.set(sheenIns, { xPercent: Math.sin(rad) * 70 });
+          spin.style.filter = `blur(${Math.min(1.3, v * 0.3).toFixed(2)}px) brightness(${(1 + 0.22 * glint).toFixed(3)}) drop-shadow(0 ${(3 + v * 1.4).toFixed(1)}px ${(6 + v * 2.2).toFixed(1)}px rgba(92,58,34,0.3))`;
         },
       },
       0.08,
     );
-    tl.to(sheen, { opacity: 0.9, duration: 0.3, ease: "power1.out" }, 0.1);
-    tl.to(sheen, { opacity: 0, duration: 0.45, ease: "power1.in" }, 0.95);
+    tl.to(sheens, { opacity: 0.85, duration: 0.3, ease: "power1.out" }, 0.1);
+    tl.to(sheens, { opacity: 0, duration: 0.45, ease: "power1.in" }, 1.05);
     // 2) hand the medallion over to the two doors (identical pixels, so nothing visibly changes)
     tl.call(
       () => {
@@ -168,16 +195,16 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
         statics.forEach((e) => (e.style.visibility = "visible"));
       },
       undefined,
-      1.42,
+      1.52,
     );
     // 3) sliding doors along the seam, fully out of view
     const ease = "power3.inOut";
-    tl.to(doorL.current, { xPercent: -(M.seam * 100 + 6), duration: 1.05, ease }, 1.46);
-    tl.to(doorR.current, { xPercent: (1 - M.seam) * 100 + 6, duration: 1.05, ease }, 1.46);
-    tl.to(shadows, { opacity: 1, duration: 0.3, ease: "power1.out" }, 1.46);
-    tl.to(shadeRef.current, { opacity: 0, duration: 1.0, ease: "power1.out" }, 1.5);
+    tl.to(doorL.current, { xPercent: -(M.seam * 100 + 6), duration: 1.05, ease }, 1.56);
+    tl.to(doorR.current, { xPercent: (1 - M.seam) * 100 + 6, duration: 1.05, ease }, 1.56);
+    tl.to(shadows, { opacity: 1, duration: 0.3, ease: "power1.out" }, 1.56);
+    tl.to(shadeRef.current, { opacity: 0, duration: 1.0, ease: "power1.out" }, 1.6);
     // 4) the first page's words appear
-    tl.to(words, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08, ease: "power2.out" }, 1.95);
+    tl.to(words, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.08, ease: "power2.out" }, 2.05);
     return tl;
   }, []);
 
@@ -227,7 +254,8 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
     if (!showcase) return;
     let t1 = 0;
     let tw: gsap.core.Tween | null = null;
-    if (phase === "closed") t1 = window.setTimeout(open, 2200);
+    let stopWait = () => undefined as void;
+    if (phase === "closed") stopWait = afterIntro(() => (t1 = window.setTimeout(open, 1800)));
     if (phase === "open" && !reduced) {
       t1 = window.setTimeout(() => {
         const sc = scrollRef.current;
@@ -243,6 +271,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
       }, 1800);
     }
     return () => {
+      stopWait();
       clearTimeout(t1);
       tw?.kill();
     };
@@ -262,7 +291,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
   };
 
   return (
-    <div ref={rootRef} className="lt-root" data-phase={phase} style={vars} lang="ar" dir="rtl">
+    <div ref={rootRef} className="lt-root" data-phase={phase} data-showcase={showcase || undefined} style={vars} lang="ar" dir="rtl">
       {badge ? <div className="lt-badge">{badge}</div> : null}
 
       {/* ---------------- the three pages (already in place under the closed cover) ---------------- */}
@@ -359,24 +388,12 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
             )}
           </div>
           <div className="lt-content lt-lower" data-reveal>
-            {showRsvp ? (
-              <>
-                <h2 className="lt-title lt-title-sm lt-rv">تأكيد الحضور</h2>
-                <Rsvp vm={vm} />
-              </>
-            ) : p.thanks && c.closingMessage ? (
-              <p className="lt-text lt-rv">{c.closingMessage}</p>
-            ) : null}
+            {p.thanks && c.closingMessage ? <p className="lt-text lt-rv">{c.closingMessage}</p> : null}
           </div>
         </section>
 
         <footer className="lt-end" data-reveal>
           {showVenue && p.message && c.customMessage ? <p className="lt-text lt-rv">{c.customMessage}</p> : null}
-          {showRsvp && p.thanks && c.closingMessage ? (
-            <p className="lt-text lt-rv" style={{ ["--i" as string]: 1 }}>
-              {c.closingMessage}
-            </p>
-          ) : null}
           <p className="lt-script lt-script-sm lt-rv" style={{ ["--i" as string]: 2 }}>
             {couple ? `${c.groomName} و ${c.brideName}` : c.eventTitle}
           </p>
@@ -419,13 +436,15 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
               </div>
             ))}
             <div ref={spinRef} className="lt-spin">
-              <Medal base={base} fill />
-              <div
-                ref={sheenRef}
-                className="lt-sheen"
-                style={{ WebkitMaskImage: `url(${base}/medallion.webp)`, maskImage: `url(${base}/medallion.webp)` }}
-              >
-                <div ref={sheenInRef} className="lt-sheen-in" />
+              <div ref={spin3dRef} className="lt-spin3d">
+                {(["front", "back"] as const).map((f) => (
+                  <div key={f} className={`lt-face lt-face-${f}`}>
+                    <Medal base={base} fill />
+                    <div className="lt-sheen" style={{ WebkitMaskImage: `url(${base}/medallion.webp)`, maskImage: `url(${base}/medallion.webp)` }}>
+                      <div className="lt-sheen-in" />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
             <p ref={hintRef} className="lt-hint">

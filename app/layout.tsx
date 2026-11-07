@@ -19,7 +19,7 @@ import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
   title: { default: `${BRAND.name} — دعوات زفاف رقمية فاخرة`, template: `%s — ${BRAND.name}` },
-  description: "دعوات زفاف ومناسبات رقمية فاخرة بتصاميم دانتيل ولؤلؤ تتفتح أمام ضيوفك كأنها حقيقية، مع روابط خاصة لكل ضيف وتأكيد حضور.",
+  description: "دعوات زفاف ومناسبات رقمية فاخرة بتصاميم دانتيل ولؤلؤ تتفتح أمام ضيوفك كأنها حقيقية، مع روابط خاصة لكل ضيف.",
   applicationName: BRAND.name,
   formatDetection: { telephone: false },
 };
