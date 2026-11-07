@@ -8,16 +8,18 @@ import { useEffect, useRef, useState } from "react";
  * then fades away to reveal the page. Plays once per browser tab session, never on in-site navigation.
  *
  * Phones: the centre crop of the video zoomed to fill the screen (object-fit: cover, no bars).
- * Desktop: the full 16:9 video, full screen. Sound plays if the browser allows it; otherwise the video
- * plays muted and the speaker button turns the sound on. Skipped for prefers-reduced-motion.
+ * Desktop: the full 16:9 video, full screen. Always with its sound: phones only allow sound to start
+ * by itself when the browser permits it, otherwise it starts muted and the sound comes on at the
+ * visitor's first touch, click or key press. Skipped for prefers-reduced-motion.
  */
 
 const KEY = "dw_intro_seen";
-const FLASH_START = 3.5; // s: the crystal light starts filling the frame
-const FLASH_FULL = 4.15; // s: white overlay fully opaque (the video is 4.25 s)
-const FADE_MS = 600; // white fades away, revealing the website (video + fade ≈ 4.75 s)
+const FLASH_START = 3.55; // s: the crystal light starts filling the frame
+const FLASH_FULL = 4.4; // s: frame fully white (the video is 6.3 s, white from here to the end)
+const FADE_MS = 2200; // slow fade from white into the website; the sound keeps playing meanwhile
 const START_LIMIT_MS = 2500; // if the video has not started by then, the intro steps aside
-const HARD_LIMIT_MS = 6500; // never keep the website covered longer than this
+const HARD_LIMIT_MS = 9000; // never keep the website covered longer than this
+const GESTURES = ["pointerup", "touchend", "click", "keydown"];
 
 declare global {
   interface Window {
@@ -36,14 +38,15 @@ try{r=window.matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
 if(s||r){window.__dwIntro="skip";d.classList.add("intro-done");return}
 window.__dwIntro="play";try{sessionStorage.setItem("${KEY}","1")}catch(e){}
 var v=document.getElementById("cinematic-intro-video");
-if(v){v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){v.muted=true;var q=v.play();if(q&&q.catch)q.catch(function(){window.__dwIntroBlocked=true})})}
+if(v){var u=function(){v.muted=false;G.forEach(function(t){document.removeEventListener(t,u,true)})},G=${JSON.stringify(GESTURES)};
+v.muted=false;var p=v.play();if(p&&p.catch)p.catch(function(){v.muted=true;G.forEach(function(t){document.addEventListener(t,u,true)});
+var q=v.play();if(q&&q.catch)q.catch(function(){window.__dwIntroBlocked=true})})}
 setTimeout(function(){d.classList.add("intro-done")},${HARD_LIMIT_MS + 500});})();`;
 
 export default function CinematicIntro() {
   const [mounted, setMounted] = useState(
     () => typeof window === "undefined" || window.__dwIntro === "play" || window.__dwIntro === "skip",
   );
-  const [muted, setMuted] = useState(true);
   const root = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const flash = useRef<HTMLDivElement>(null);
@@ -69,20 +72,22 @@ export default function CinematicIntro() {
     el.addEventListener("wheel", block, { passive: false });
     el.addEventListener("touchmove", block, { passive: false });
 
-    const close = (fadeMs: number) => {
+    // fade the intro away; `letSoundFinish` keeps the (now invisible) video playing until its sound ends
+    const close = (fadeMs: number, letSoundFinish = false) => {
       if (finished) return;
       finished = true;
       cancelAnimationFrame(raf);
-      el.style.transition = `opacity ${fadeMs}ms ease`;
+      el.style.transition = `opacity ${fadeMs}ms cubic-bezier(0.45, 0, 0.25, 1)`;
       el.style.opacity = "0";
       el.style.pointerEvents = "none";
+      const left = letSoundFinish && Number.isFinite(v.duration) ? (v.duration - v.currentTime) * 1000 + 150 : 0;
       timers.push(
         window.setTimeout(() => {
           v.pause();
           window.__dwIntro = "done";
           html.classList.add("intro-done");
           setMounted(false);
-        }, fadeMs),
+        }, Math.max(fadeMs, Math.min(left, 4000))),
       );
     };
     closeRef.current = close;
@@ -94,7 +99,7 @@ export default function CinematicIntro() {
       if (k > 0) el.setAttribute("data-flash", "");
       if (t >= FLASH_FULL || v.ended) {
         w.style.opacity = "1";
-        close(FADE_MS);
+        close(FADE_MS, true);
         return;
       }
       raf = requestAnimationFrame(tick);
@@ -106,11 +111,12 @@ export default function CinematicIntro() {
       close(FADE_MS);
     };
     const onError = () => close(400);
-    const onVolume = () => setMuted(v.muted);
+    const unmute = () => {
+      if (v.muted) v.muted = false; // sound on at the first touch / click / key if autoplay started muted
+    };
     v.addEventListener("ended", onEnded);
     v.addEventListener("error", onError);
-    v.addEventListener("volumechange", onVolume);
-    setMuted(v.muted);
+    GESTURES.forEach((t) => document.addEventListener(t, unmute, true));
 
     if (window.__dwIntroBlocked) close(400); // autoplay refused (e.g. iPhone Low Power Mode)
     else if (v.paused && !v.ended) {
@@ -138,7 +144,7 @@ export default function CinematicIntro() {
       el.removeEventListener("touchmove", block);
       v.removeEventListener("ended", onEnded);
       v.removeEventListener("error", onError);
-      v.removeEventListener("volumechange", onVolume);
+      GESTURES.forEach((t) => document.removeEventListener(t, unmute, true));
     };
   }, [mounted]);
 
@@ -162,21 +168,7 @@ export default function CinematicIntro() {
       </video>
       <div ref={flash} className="cinematic-intro__flash" aria-hidden="true" />
       <div className="cinematic-intro__controls">
-        <button
-          type="button"
-          className="cinematic-intro__btn cinematic-intro__btn--icon"
-          aria-label={muted ? "تشغيل الصوت" : "كتم الصوت"}
-          onClick={() => {
-            const v = video.current;
-            if (v) v.muted = !v.muted;
-          }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none" />
-            {muted ? <path d="M16.5 9.5l5 5M21.5 9.5l-5 5" /> : <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />}
-          </svg>
-        </button>
-        <button type="button" className="cinematic-intro__btn" onClick={() => closeRef.current(350)}>
+        <button type="button" className="cinematic-intro__btn" onClick={() => closeRef.current(800)}>
           تخطي
         </button>
       </div>

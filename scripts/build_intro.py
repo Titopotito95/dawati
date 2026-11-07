@@ -3,7 +3,7 @@
 Home-page cinematic intro (jewellery box): prepares the supplied Gemini video for the web.
 The footage itself is not changed or regenerated; it is only re-framed and compressed.
 
-  input : assets-src/intro/jewelry-box.mp4   (1280x720, 24 fps, 4.25 s, trimmed by the owner)
+  input : assets-src/intro/jewelry-box.mp4   (1280x720, 24 fps, 6.3 s, trimmed by the owner)
   output: public/assets/intro/intro-desktop.mp4 + .webp poster  (1280x720, original framing)
           public/assets/intro/intro-mobile.mp4  + .webp poster  (480x720 centre crop, phones)
 

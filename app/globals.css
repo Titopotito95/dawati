@@ -146,10 +146,6 @@ body {
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
   }
-  .cinematic-intro__btn--icon {
-    width: 34px;
-    padding: 0;
-  }
   @media (min-aspect-ratio: 1/1) {
     /* laptops / desktops: the whole 16:9 film, full screen */
     .cinematic-intro__video {
