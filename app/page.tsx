@@ -53,6 +53,7 @@ export default async function Home() {
             <PhoneFrame label="عرض حي للدعوة">
               <InvitationPlayer vm={vm} showcase />
             </PhoneFrame>
+            <div className="phone-reflection" aria-hidden="true" />
           </div>
         </section>
 

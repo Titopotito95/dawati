@@ -127,35 +127,51 @@ body {
   /* phone preview standing on the shiny floor: soft contact shadow + faint mirror image */
   .phone-stage {
     isolation: isolate;
+    --pw: min(calc(100% - 32px), 340px, calc(78svh * 9 / 19.5)); /* same width as .phone-frame */
   }
-  .phone-stage::before { /* short ambient shadow behind the phone (not mirrored) */
+  .phone-stage::before { /* short ambient shadow behind the phone */
     content: "";
     position: absolute;
     z-index: -1;
     top: 0;
     bottom: 0;
     left: 50%;
-    width: min(calc(100% - 32px), 340px, calc(78svh * 9 / 19.5));
+    width: var(--pw);
     transform: translateX(-50%);
     border-radius: 46px;
-    box-shadow: 0 12px 26px rgba(43, 25, 25, 0.2);
+    box-shadow: 0 10px 22px rgba(43, 25, 25, 0.22);
   }
-  .phone-stage::after { /* thin contact shadow where the phone meets the floor */
+  /* faint mirror image of the dark phone body on the shiny floor (drawn, not a copy of the screen) */
+  .phone-reflection {
+    position: absolute;
+    z-index: -1;
+    top: calc(100% + 2px);
+    left: 50%;
+    width: var(--pw);
+    height: 44px;
+    transform: translateX(-50%);
+    border-radius: 46px 46px 0 0;
+    background: linear-gradient(145deg, #2b2223, #120d0e);
+    opacity: 0.22;
+    filter: blur(1px);
+    -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+    mask-image: linear-gradient(to bottom, #000, transparent);
+  }
+  .phone-stage::after { /* dark contact shadow right under the phone, where it stands on the floor */
     content: "";
     position: absolute;
     z-index: -1;
     left: 50%;
     bottom: -5px;
-    width: min(62vw, 240px);
+    width: calc(var(--pw) * 0.92);
     height: 12px;
     transform: translateX(-50%);
     border-radius: 50%;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(40, 26, 22, 0.4), rgba(40, 26, 22, 0) 100%);
-    filter: blur(3px);
+    background: radial-gradient(50% 50% at 50% 50%, rgba(22, 12, 10, 0.72), rgba(22, 12, 10, 0) 100%);
+    filter: blur(2px);
   }
   .phone-stage .phone-frame {
-    box-shadow: 0 0 0 1.5px #3c3132 inset; /* outer shadow moved to ::before so the mirror image has no square edge */
-    -webkit-box-reflect: below 2px linear-gradient(to bottom, transparent 90%, rgba(0, 0, 0, 0.16));
+    box-shadow: 0 0 0 1.5px #3c3132 inset; /* outer shadow is drawn by .phone-stage::before */
   }
 
   /* home-page header: see-through over the video (a faint light veil keeps the logo and links legible),
