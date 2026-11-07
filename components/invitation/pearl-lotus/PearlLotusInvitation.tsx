@@ -50,15 +50,11 @@ function usePrefersReducedMotion() {
   return r;
 }
 
-/** The medallion with the couple's initials; rendered in the spinner and (static) in each door. */
-function Medal({ base, initials, label, fill }: { base: string; initials: string; label: string; fill?: boolean }) {
+/** The medallion artwork; rendered in the spinner and (static) in each door. */
+function Medal({ base, fill }: { base: string; fill?: boolean }) {
   return (
     <div className={`lt-medal${fill ? " lt-medal-fill" : ""}`}>
       <img src={`${base}/medallion.webp`} alt="" draggable={false} />
-      <div className="lt-medal-text">
-        {initials ? <span className="lt-medal-initials">{initials}</span> : null}
-        <span className="lt-medal-label">{label}</span>
-      </div>
     </div>
   );
 }
@@ -88,7 +84,6 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
   const [music, setMusic] = useState(false);
 
   const couple = !(c.eventType === "party" || c.eventType === "other") || !c.eventTitle;
-  const initials = (c.initials || "").trim();
   const date = useMemo(() => formatEventDate(c.eventDate), [c.eventDate]);
   const time = formatEventTime(c.eventTime);
   const start = useMemo(() => eventStartUtc(c.eventDate, c.eventTime), [c.eventDate, c.eventTime]);
@@ -261,7 +256,6 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
     "--mh": pct(M.medallion.height),
     "--cover-ar": String(M.cover.w / M.cover.h),
   } as CSSProperties;
-  const medalLabel = "دعوة";
   const page = (n: 1 | 2 | 3) => {
     const s = M[`page${n}` as const];
     return <img className="lt-art" src={`${base}/page${n}.webp`} width={s.w} height={s.h} alt="" draggable={false} decoding="async" />;
@@ -419,13 +413,13 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
               <div key={side} ref={side === "l" ? doorL : doorR} className={`lt-door lt-door-${side}`}>
                 <div className="lt-door-art">
                   <img src={`${base}/cover-base.webp`} alt="" draggable={false} />
-                  <Medal base={base} initials={initials} label={medalLabel} />
+                  <Medal base={base} />
                 </div>
                 <div className="lt-door-shadow" />
               </div>
             ))}
             <div ref={spinRef} className="lt-spin">
-              <Medal base={base} initials={initials} label={medalLabel} fill />
+              <Medal base={base} fill />
               <div
                 ref={sheenRef}
                 className="lt-sheen"

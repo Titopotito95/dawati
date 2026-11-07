@@ -15,8 +15,7 @@ The artwork is not redrawn: only cut into layers and compressed.
           thumb.webp       catalogue thumbnail
           + manifest.json  geometry (seam, medallion box, page sizes) used by the renderer
 
-The supplied cover carried a third-party brand name inside the medallion; that lettering is
-removed here (the renderer writes the couple's initials and "دعوة" there as live text).
+The medallion keeps its original lettering exactly as supplied (used with the owner's permission).
 Requires: Python 3, opencv-python-headless, NumPy, Pillow.
 """
 from __future__ import annotations
@@ -36,7 +35,6 @@ OUT = ROOT / "public" / "assets" / "themes" / "pearl-lotus" / "v1"
 SEAM_X = 356.5  # centre of the vertical gold line (cover px)
 BOX = (186, 452, 530, 828)  # search window around the medallion
 TIPS = (464, 807)  # medallion top / bottom tip rows (the seam line continues beyond them)
-TEXT = (588, 686, 258, 458)  # rows / cols of the lettering inside the medallion (flourish below is kept)
 
 
 def gold_mask(img: np.ndarray) -> np.ndarray:
@@ -68,18 +66,6 @@ def medallion_mask(img: np.ndarray) -> np.ndarray:
     full = np.zeros(img.shape[:2], np.uint8)
     full[y0:y1, x0:x1] = m
     return full
-
-
-def remove_lettering(img: np.ndarray, medal: np.ndarray) -> np.ndarray:
-    inner = cv2.erode(medal, np.ones((29, 29), np.uint8))
-    lum = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    dark = (lum.astype(int) < cv2.GaussianBlur(lum, (41, 41), 0).astype(int) - 18).astype(np.uint8)
-    t = inner & (gold_mask(img) | dark)
-    r0, r1, c0, c1 = TEXT
-    keep = np.zeros_like(t)
-    keep[r0:r1, c0:c1] = 1
-    t = cv2.dilate(t & keep, np.ones((9, 9), np.uint8))
-    return cv2.inpaint(img, t * 255, 7, cv2.INPAINT_TELEA)
 
 
 def lift_medallion(img: np.ndarray, medal: np.ndarray, pearl: np.ndarray) -> np.ndarray:
@@ -118,7 +104,7 @@ def main() -> None:
     cover = cv2.imread(str(SRC / "cover.jpg"))
     H, W = cover.shape[:2]
     medal = medallion_mask(cover)
-    clean = remove_lettering(cover, medal)
+    clean = cover
     page1 = cv2.imread(str(SRC / "page1.jpg"))
     base = lift_medallion(clean, medal, page1)
 

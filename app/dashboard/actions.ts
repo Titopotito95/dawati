@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import sharp, { type OutputInfo } from "sharp";
 import { requireCustomer } from "@/lib/auth";
-import { saveInvitation, setRecoveryPhone, photoCount } from "@/lib/services/workspace";
+import { saveInvitation, setRecoveryPhone, photoCount, changeInvitationTheme } from "@/lib/services/workspace";
 import { addGuests, updateGuest, deleteGuest, reissueGuestLink, revokeGuestLink } from "@/lib/services/guests";
 import { issueCustomerToken } from "@/lib/services/orders";
 import { getSettings } from "@/lib/services/settings";
@@ -20,6 +20,17 @@ export async function saveInvitationAction(payload: { content: unknown; pages: u
     const r = await saveInvitation(db, ws.workspaceId, payload);
     revalidatePath("/dashboard", "layout");
     return { ok: true, message: "تم حفظ التغييرات", data: { updatedAt: r.updatedAt } };
+  } catch (e) {
+    return { ok: false, message: userMessage(e) };
+  }
+}
+
+export async function changeThemeAction(themeSlug: string): Promise<ActionResult> {
+  const { db, ws } = await requireCustomer();
+  try {
+    await changeInvitationTheme(db, ws.workspaceId, String(themeSlug || "").slice(0, 60));
+    revalidatePath("/dashboard", "layout");
+    return { ok: true, message: "تم تغيير التصميم" };
   } catch (e) {
     return { ok: false, message: userMessage(e) };
   }

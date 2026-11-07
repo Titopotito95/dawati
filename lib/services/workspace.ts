@@ -176,6 +176,41 @@ export async function saveInvitation(
   });
 }
 
+/**
+ * Customer switches their invitation to another active design (its current published version, default
+ * colour). Only designs priced at or below the design they bought; content, guests, links and RSVPs stay.
+ */
+export async function changeInvitationTheme(db: Db, workspaceId: string, themeSlug: string): Promise<void> {
+  await db.tx(async (q) => {
+    const ws = await getWorkspace(q, workspaceId);
+    if (!ws) throw new UserError("مساحة الدعوة غير موجودة", "not_found");
+    if (ws.workspaceStatus !== "active") throw new UserError("تم إيقاف هذه الدعوة مؤقتاً");
+    const cur = await q.query<{ price_minor: number }>(
+      `select t.price_minor from theme_versions tv join themes t on t.id = tv.theme_id where tv.id = $1`,
+      [ws.themeVersionId],
+    );
+    const next = await q.query<{ version_id: string; price_minor: number; variant_key: string | null }>(
+      `select v.id as version_id, t.price_minor,
+              (select key from theme_color_variants cv where cv.theme_version_id = v.id and cv.status = 'active'
+                order by cv.is_default desc, cv.sort_order limit 1) as variant_key
+         from themes t
+         join lateral (select * from theme_versions tv where tv.theme_id = t.id and tv.status = 'published'
+                        order by tv.version desc limit 1) v on true
+        where t.slug = $1 and t.status = 'active'`,
+      [themeSlug],
+    );
+    const n = next.rows[0];
+    if (!n || !n.variant_key) throw new UserError("هذا التصميم غير متاح حالياً");
+    if (num(n.price_minor) > num(cur.rows[0]?.price_minor ?? 0)) throw new UserError("هذا التصميم يتطلب ترقية الباقة، تواصل معنا");
+    if (n.version_id === ws.themeVersionId) return;
+    await q.query(
+      `update invitations set theme_version_id = $2, color_variant_key = $3, updated_at = now() where workspace_id = $1`,
+      [workspaceId, n.version_id, n.variant_key],
+    );
+    await audit(q, { actorType: "customer", actorId: workspaceId, action: "invitation.theme_changed", targetType: "invitation", targetId: ws.invitationId, details: { theme: themeSlug } });
+  });
+}
+
 export async function setRecoveryPhone(q: Queryable, workspaceId: string, phone: string) {
   const p = phone.trim().slice(0, 30);
   if (p && !/^\+?[0-9\s-]{7,20}$/.test(p)) throw new UserError("رقم الهاتف غير صحيح");
