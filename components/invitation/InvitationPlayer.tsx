@@ -13,6 +13,10 @@ const RENDERERS = {
     ssr: false,
     loading: () => <div style={{ width: "100%", height: "100%", background: "#f2ded7" }} aria-busy="true" />,
   }),
+  "pearl-lotus@1": dynamic(() => import("./pearl-lotus/PearlLotusInvitation"), {
+    ssr: false,
+    loading: () => <div style={{ width: "100%", height: "100%", background: "#f3e6e2" }} aria-busy="true" />,
+  }),
 } as const;
 
 export type RendererKey = keyof typeof RENDERERS;

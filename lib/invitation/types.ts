@@ -75,7 +75,7 @@ export interface GuestView {
   expiresAt: string;
 }
 
-export type ColorVariantKey = "ivory" | "white" | "champagne";
+export type ColorVariantKey = "ivory" | "white" | "champagne" | "blush";
 
 export interface InvitationViewModel {
   renderer: string; // e.g. "pearl-lace@1"

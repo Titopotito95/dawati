@@ -1,0 +1,370 @@
+/* Theme "Pearl Lotus" (pearl-lotus@1). Every rule is scoped under .lt-root. */
+
+.lt-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  container-type: size;
+  background: #f3e6e2;
+  color: #6e5048;
+  font-family: "Amiri", "Cairo", serif;
+  direction: rtl;
+  -webkit-font-smoothing: antialiased;
+}
+.lt-root img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ---------------- pages ---------------- */
+.lt-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: hidden; /* locked until the doors have opened */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.lt-scroll::-webkit-scrollbar { display: none; }
+.lt-root[data-phase="open"] .lt-scroll { overflow-y: auto; }
+
+.lt-page {
+  position: relative;
+  width: 100%;
+  container-type: inline-size;
+}
+.lt-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+.lt-content {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.8cqi;
+  text-align: center;
+  text-shadow: 0 1px 8px rgba(255, 252, 249, 0.9);
+}
+/* text areas = the empty pearl inside each frame */
+.lt-p1 .lt-content { top: 20%; bottom: 25%; left: 16%; right: 16%; }
+.lt-p2 .lt-content { top: 21%; bottom: 37%; left: 10%; right: 10%; }
+.lt-p3 .lt-oval { top: 27%; bottom: 52%; left: 29%; right: 29%; gap: 1.4cqi; }
+.lt-p3 .lt-lower { top: 58%; bottom: 21%; left: 16%; right: 16%; gap: 1.4cqi; }
+
+.lt-bismillah { font-size: 4.4cqi; color: #8a6438; }
+.lt-line { font-size: 4.3cqi; line-height: 1.6; }
+.lt-line-sm { font-size: 3.6cqi; }
+.lt-names {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1.5cqi 0;
+}
+.lt-name,
+.lt-script {
+  font-family: "Aref Ruqaa", "Amiri", serif;
+  line-height: 1.25;
+  color: #96703f;
+  background: linear-gradient(180deg, #c09456 0%, #8c6331 70%, #a87d47 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 1px 4px rgba(255, 252, 249, 0.9));
+}
+.lt-name { font-size: 9.6cqi; }
+.lt-and { font-size: 5cqi; color: #a07a4a; line-height: 1.2; }
+.lt-script { font-size: 6.4cqi; }
+.lt-script-sm { font-size: 6cqi; }
+.lt-guest {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6cqi;
+  margin-top: 1cqi;
+  padding: 2cqi 5cqi;
+  border-top: 1px solid rgba(170, 130, 80, 0.45);
+}
+.lt-guest-label { font-size: 3.4cqi; color: #8a6c5f; }
+.lt-guest-name { font-family: "El Messiri", "Amiri", serif; font-size: 5.2cqi; color: #7a5232; }
+.lt-cue { margin-top: 2cqi; color: #a07a4a; animation: lt-cue 1.8s ease-in-out infinite; }
+@keyframes lt-cue { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(5px); opacity: 1; } }
+
+.lt-title { font-family: "El Messiri", "Amiri", serif; font-size: 5.2cqi; font-weight: 600; color: #8a6438; letter-spacing: 0.01em; }
+.lt-title-sm { font-size: 4.4cqi; }
+.lt-text { font-size: 4cqi; line-height: 1.7; }
+.lt-text-soft { font-size: 3.7cqi; color: #866659; }
+.lt-note { font-size: 3.1cqi; line-height: 1.6; color: #866659; }
+.lt-error { color: #a33a3a; }
+
+.lt-date { display: flex; align-items: center; justify-content: center; gap: 4cqi; }
+.lt-date-side { font-family: "El Messiri", "Amiri", serif; font-size: 4cqi; line-height: 1.4; color: #7a5a4c; min-width: 16cqi; }
+.lt-date-num {
+  font-family: "Amiri", serif;
+  font-size: 15cqi;
+  line-height: 1;
+  color: #96703f;
+  padding: 0 4cqi;
+  border-inline: 1px solid rgba(170, 130, 80, 0.5);
+}
+
+.lt-countdown { display: flex; justify-content: center; gap: 2.4cqi; margin-bottom: 2.6cqi; direction: rtl; }
+.lt-count-cell {
+  min-width: 13cqi;
+  padding: 1.6cqi 0.8cqi;
+  border-radius: 2.4cqi;
+  background: rgba(255, 251, 248, 0.62);
+  border: 1px solid rgba(190, 150, 100, 0.4);
+  box-shadow: 0 1px 6px rgba(150, 100, 80, 0.12);
+}
+.lt-count-num { font-family: "El Messiri", sans-serif; font-size: 5.4cqi; line-height: 1.1; color: #8a6438; }
+.lt-count-label { font-size: 2.7cqi; color: #866659; }
+
+.lt-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.7cqi 4cqi;
+  border-radius: 999px;
+  border: 1px solid rgba(160, 120, 70, 0.6);
+  background: rgba(255, 251, 248, 0.72);
+  color: #8a6438;
+  font-family: "El Messiri", "Cairo", sans-serif;
+  font-size: 3.4cqi;
+  line-height: 1.4;
+  text-decoration: none;
+  text-shadow: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.lt-btn:active { transform: scale(0.97); }
+.lt-btn:disabled { opacity: 0.6; }
+.lt-btn-solid,
+.lt-btn[aria-pressed="true"] {
+  background: linear-gradient(180deg, #cba56d, #a57a45);
+  border-color: #a57a45;
+  color: #fff;
+}
+.lt-rsvp { display: flex; flex-direction: column; align-items: center; gap: 1.6cqi; }
+.lt-rsvp-btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 2cqi; }
+.lt-party { display: flex; align-items: center; gap: 2.4cqi; }
+.lt-stepper { display: inline-flex; align-items: center; gap: 2cqi; font-family: "El Messiri", sans-serif; font-size: 4.2cqi; color: #8a6438; }
+.lt-stepper button {
+  width: 7cqi;
+  height: 7cqi;
+  border-radius: 50%;
+  border: 1px solid rgba(160, 120, 70, 0.6);
+  background: rgba(255, 251, 248, 0.75);
+  color: #8a6438;
+  font-size: 4.4cqi;
+  line-height: 1;
+}
+
+.lt-end {
+  position: relative;
+  margin-top: -6cqw;
+  padding: 10cqw 8cqw 16cqw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3cqw;
+  text-align: center;
+  background: linear-gradient(to bottom, rgba(243, 230, 226, 0), #f3e6e2 6cqw);
+}
+.lt-end .lt-text { font-size: 4cqw; }
+.lt-end .lt-note { font-size: 3.2cqw; }
+.lt-end .lt-script-sm { font-size: 6cqw; }
+.lt-end .lt-btn { font-size: 3.6cqw; padding: 2cqw 5cqw; }
+
+/* gentle reveal while scrolling; page 1 is revealed by the opening itself */
+[data-reveal] .lt-rv {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 110ms);
+}
+[data-reveal].lt-in .lt-rv { opacity: 1; transform: none; }
+.lt-root:not([data-phase="open"]) .lt-p1 .lt-rv { opacity: 0; }
+
+/* ---------------- closed cover ---------------- */
+.lt-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.lt-shade { /* the page waiting under the doors; brightens as they part */
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(84, 48, 40, 0.1), rgba(84, 48, 40, 0.3));
+}
+.lt-stage { /* the cover artwork, scaled to fill the screen like background-size: cover */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100cqw, calc(100cqh * var(--cover-ar)));
+  aspect-ratio: var(--cover-ar);
+  transform: translate(-50%, -50%);
+  container-type: inline-size;
+}
+.lt-door {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.lt-door-art { position: absolute; inset: 0; }
+.lt-door-art > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.lt-door-l .lt-door-art { clip-path: inset(0 calc(100% - var(--seam)) 0 0); }
+.lt-door-r .lt-door-art { clip-path: inset(0 0 0 var(--seam)); }
+.lt-door-shadow { /* soft shadow each door casts on the page as it slides */
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 7%;
+  opacity: 0;
+  pointer-events: none;
+}
+.lt-door-l .lt-door-shadow { left: var(--seam); background: linear-gradient(to right, rgba(84, 48, 40, 0.32), rgba(84, 48, 40, 0)); }
+.lt-door-r .lt-door-shadow { right: calc(100% - var(--seam)); background: linear-gradient(to left, rgba(84, 48, 40, 0.32), rgba(84, 48, 40, 0)); }
+
+.lt-medal {
+  position: absolute;
+  left: var(--mx);
+  top: var(--my);
+  width: var(--mw);
+  height: var(--mh);
+}
+.lt-door .lt-medal { visibility: hidden; } /* shown once the spinning medallion settles */
+.lt-medal-fill { left: 0; top: 0; width: 100%; height: 100%; }
+.lt-medal > img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.lt-medal-text {
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  top: 34%;
+  height: 29%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8cqi;
+  text-align: center;
+}
+.lt-medal-initials {
+  font-family: "Aref Ruqaa", "Amiri", serif;
+  font-size: 8.6cqi;
+  line-height: 1.1;
+  color: #8f6a3a;
+  background: linear-gradient(180deg, #b68c52 0%, #7f5a2c 75%, #a47a44 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.lt-medal-label {
+  font-family: "Amiri", serif;
+  font-size: 3cqi;
+  letter-spacing: 0.14em;
+  color: #8b6a45;
+}
+
+.lt-spin {
+  position: absolute;
+  left: var(--mx);
+  top: var(--my);
+  width: var(--mw);
+  height: var(--mh);
+  z-index: 3;
+  transform-origin: 50% 50%;
+  will-change: transform, filter;
+}
+.lt-sheen { /* light glinting on the gold while it spins */
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+.lt-sheen-in {
+  position: absolute;
+  inset: -30%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 244, 214, 0) 0deg 40deg,
+    rgba(255, 244, 214, 0.95) 58deg,
+    rgba(255, 244, 214, 0) 76deg 196deg,
+    rgba(255, 236, 200, 0.7) 214deg,
+    rgba(255, 236, 200, 0) 232deg 360deg
+  );
+}
+.lt-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 66.5%;
+  z-index: 4;
+  text-align: center;
+  font-family: "El Messiri", "Amiri", serif;
+  font-size: 3.9cqi;
+  color: #86603c;
+  text-shadow: 0 0 10px rgba(255, 252, 249, 1), 0 0 3px rgba(255, 252, 249, 1);
+  animation: lt-hint 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes lt-hint { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+
+/* ---------------- floating controls / badge ---------------- */
+.lt-controls {
+  position: absolute;
+  z-index: 6;
+  left: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 8px;
+}
+.lt-fab {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(170, 130, 80, 0.45);
+  background: rgba(255, 251, 248, 0.8);
+  color: #8a6438;
+  box-shadow: 0 4px 14px rgba(120, 80, 60, 0.18);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.lt-badge {
+  position: absolute;
+  z-index: 7;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 251, 248, 0.85);
+  color: #8a6438;
+  font: 600 12px/1.4 "Cairo", sans-serif;
+  box-shadow: 0 2px 8px rgba(120, 80, 60, 0.15);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lt-hint, .lt-cue { animation: none; opacity: 1; }
+  [data-reveal] .lt-rv { transition: none; transform: none; }
+}
