@@ -127,7 +127,7 @@ body {
   /* phone preview standing on the shiny floor: soft contact shadow + faint mirror image */
   .phone-stage {
     isolation: isolate;
-    --pw: min(calc(100% - 32px), 340px, calc(78svh * 9 / 19.5)); /* same width as .phone-frame */
+    --pw: calc(min(calc(100% - 32px), 340px, calc(78svh * 9 / 19.5)) * 0.65); /* same width as the phone below */
   }
   .phone-stage::before { /* short ambient shadow behind the phone */
     content: "";
@@ -138,8 +138,8 @@ body {
     left: 50%;
     width: var(--pw);
     transform: translateX(-50%);
-    border-radius: 46px;
-    box-shadow: 0 10px 22px rgba(43, 25, 25, 0.22);
+    border-radius: 30px;
+    box-shadow: 0 8px 16px rgba(43, 25, 25, 0.22);
   }
   /* faint mirror image of the dark phone body on the shiny floor (drawn, not a copy of the screen) */
   .phone-reflection {
@@ -148,9 +148,9 @@ body {
     top: calc(100% + 2px);
     left: 50%;
     width: var(--pw);
-    height: 44px;
+    height: 30px;
     transform: translateX(-50%);
-    border-radius: 46px 46px 0 0;
+    border-radius: 30px 30px 0 0;
     background: linear-gradient(145deg, #2b2223, #120d0e);
     opacity: 0.22;
     filter: blur(1px);
@@ -162,17 +162,23 @@ body {
     position: absolute;
     z-index: -1;
     left: 50%;
-    bottom: -5px;
+    bottom: -4px;
     width: calc(var(--pw) * 0.92);
-    height: 12px;
+    height: 9px;
     transform: translateX(-50%);
     border-radius: 50%;
     background: radial-gradient(50% 50% at 50% 50%, rgba(22, 12, 10, 0.72), rgba(22, 12, 10, 0) 100%);
     filter: blur(2px);
   }
+  /* home page: phone preview 35% smaller (the invitation inside scales with it) */
   .phone-stage .phone-frame {
+    width: calc(min(100%, 340px, calc(78svh * 9 / 19.5)) * 0.65);
+    border-radius: 30px;
+    padding: 7px;
     box-shadow: 0 0 0 1.5px #3c3132 inset; /* outer shadow is drawn by .phone-stage::before */
   }
+  .phone-stage .phone-frame__screen { border-radius: 24px; }
+  .phone-stage .phone-frame__island { top: 14px; height: 16px; }
 
   /* home-page header: see-through over the video (a faint light veil keeps the logo and links legible),
      page-coloured again once the video has scrolled away */
