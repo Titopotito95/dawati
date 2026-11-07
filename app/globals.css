@@ -127,7 +127,7 @@ body {
   /* phone preview standing on the shiny floor: soft contact shadow + faint mirror image */
   .phone-stage {
     isolation: isolate;
-    --pw: calc(min(calc(100% - 32px), 340px, calc(78svh * 9 / 19.5)) * 0.65); /* same width as the phone below */
+    --pw: calc(min(calc(100% - 32px), 340px, calc(78svh * 9 / 19.5)) * 0.6); /* same width as the phone below */
   }
   .phone-stage::before { /* short ambient shadow behind the phone */
     content: "";
@@ -170,9 +170,9 @@ body {
     background: radial-gradient(50% 50% at 50% 50%, rgba(22, 12, 10, 0.72), rgba(22, 12, 10, 0) 100%);
     filter: blur(2px);
   }
-  /* home page: phone preview 35% smaller (the invitation inside scales with it) */
+  /* home page: phone preview 40% smaller (the invitation inside scales with it) */
   .phone-stage .phone-frame {
-    width: calc(min(100%, 340px, calc(78svh * 9 / 19.5)) * 0.65);
+    width: calc(min(100%, 340px, calc(78svh * 9 / 19.5)) * 0.6);
     border-radius: 30px;
     padding: 7px;
     box-shadow: 0 0 0 1.5px #3c3132 inset; /* outer shadow is drawn by .phone-stage::before */
