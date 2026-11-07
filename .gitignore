@@ -12,3 +12,4 @@ next-env.d.ts
 tsconfig.tsbuildinfo
 .vercel
 .env*
+assets-src/hero/build

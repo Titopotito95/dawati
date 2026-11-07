@@ -2,6 +2,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/ui/SiteHeader";
 import SiteFooter from "@/components/ui/SiteFooter";
 import WhatsAppFloat from "@/components/ui/WhatsAppFloat";
+import HeroBackground from "@/components/ui/HeroBackground";
 import PhoneFrame from "@/components/invitation/PhoneFrame";
 import InvitationPlayer from "@/components/invitation/InvitationPlayer";
 import { Rings, SealedEnvelope, FlowerSprig, Swans, Glasses, Sparkle } from "@/components/ui/LineArt";
@@ -45,6 +46,7 @@ export default async function Home() {
       <main>
         {/* ---------------- hero: inset cream panel ---------------- */}
         <section className="hero-panel pb-14 pt-12 sm:pt-16">
+          <HeroBackground />
           <div className="relative z-10 mx-auto max-w-3xl px-5 text-center">
             <span className="eyebrow reveal-up">دعوات رقمية فاخرة · دانتيل ولؤلؤ</span>
             <h1 className="display reveal-up mt-4 text-[2.6rem] sm:text-6xl" style={{ ["--d" as string]: "0.08s" }}>
