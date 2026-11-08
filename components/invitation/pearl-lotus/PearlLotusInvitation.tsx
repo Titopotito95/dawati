@@ -31,7 +31,7 @@ const M = manifestJson as unknown as {
 };
 const ASSET_ROOT = "/assets/themes/pearl-lotus/v1";
 /** Theme images are cached by browsers for a year; bump this whenever an image file changes. */
-const REV = "8";
+const REV = "9";
 const VARIANTS = ["blush"]; // prepared colour variants (folders under ASSET_ROOT)
 const pct = (n: number) => `${(n * 100).toFixed(4)}%`;
 

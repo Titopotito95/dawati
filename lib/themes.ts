@@ -1,6 +1,6 @@
 /** Client-safe helpers for theme assets (thumbnails etc.), keyed by renderer. */
 /** Browsers cache theme images for a year: bump a renderer's revision whenever its images change. */
-const REV: Record<string, string> = { "pearl-lotus@1": "8" };
+const REV: Record<string, string> = { "pearl-lotus@1": "9" };
 
 export function themeThumb(renderer: string, variant: string): string {
   const [name, ver] = renderer.split("@");
