@@ -31,7 +31,7 @@ const M = manifestJson as unknown as {
 };
 const ASSET_ROOT = "/assets/themes/pearl-lotus/v1";
 /** Theme images are cached by browsers for a year; bump this whenever an image file changes. */
-const REV = "4";
+const REV = "5";
 const VARIANTS = ["blush"]; // prepared colour variants (folders under ASSET_ROOT)
 const pct = (n: number) => `${(n * 100).toFixed(4)}%`;
 
@@ -189,7 +189,7 @@ export default function PearlLotusInvitation({ vm, showcase = false, onOpenStart
           const rad = (face * Math.PI) / 180;
           const glint = Math.pow(Math.max(0, Math.cos(rad - 0.35)), 10); // light catching the gold
           gsap.set(sheenIns, { xPercent: Math.sin(rad) * 70 });
-          spin.style.filter = `blur(${Math.min(1.3, v * 0.3).toFixed(2)}px) brightness(${(1 + 0.22 * glint).toFixed(3)}) drop-shadow(0 ${(3 + v * 1.4).toFixed(1)}px ${(6 + v * 2.2).toFixed(1)}px rgba(92,58,34,0.3))`;
+          spin.style.filter = `blur(${Math.min(0.9, v * 0.22).toFixed(2)}px) brightness(${(1 + 0.22 * glint).toFixed(3)})`;
         },
       },
       0.08,
