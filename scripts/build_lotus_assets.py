@@ -76,24 +76,30 @@ def lift_medallion(img: np.ndarray, medal: np.ndarray, pearl: np.ndarray) -> np.
     """Cover without the medallion (seen only around it while it spins): the colours continue smoothly
     from the surrounding pearl (inpainting) and real pearl texture detail from the same empty area of
     page 1 is laid over them; everything outside the medallion stays original. The seam line continues."""
-    hole = medal.copy()
+    hole = cv2.dilate(medal, np.ones((9, 9), np.uint8))
     x0, y0, x1, y1 = BOX
     smooth = cv2.inpaint(img, hole * 255, 15, cv2.INPAINT_TELEA).astype(np.float32)
     tex = pearl.astype(np.float32)
     detail = tex - cv2.GaussianBlur(tex, (0, 0), 9)
     fill = np.clip(smooth + detail * 1.1, 0, 255)
-    soft = cv2.erode(hole, np.ones((7, 7), np.uint8)).astype(np.float32)  # stays inside the layer's opaque part
-    soft = np.maximum(cv2.GaussianBlur(soft, (3, 3), 0), soft)[..., None]
+    # feathered (no hard outline anywhere); the medallion layer's soft edge covers this whole zone at rest
+    soft = np.maximum(cv2.GaussianBlur(hole.astype(np.float32), (0, 0), 3), hole.astype(np.float32))[..., None]
     base = (img.astype(np.float32) * (1 - soft) + fill * soft).astype(np.uint8)
+    # seam line behind the medallion: rebuilt from the exact line pixels just above and just below it
+    # (blended between the two), only where the fill replaced the original, so it continues perfectly
+    # straight into the untouched line above and below
     cx = int(round(SEAM_X))
-    half = 9
-    src = img[345:455, cx - half : cx + half + 1].astype(np.float32)  # clean stretch of the seam line
-    a = np.cos(np.linspace(-np.pi / 2, np.pi / 2, 2 * half + 1)) ** 1.5  # feathered sides
-    a = a[None, :, None]
+    half = 7
+    cols = slice(cx - half, cx + half + 1)
+    top = img[y0 - 3, cols].astype(np.float32)
+    bot = img[y1 + 2, cols].astype(np.float32)
+    dx = np.abs(np.arange(-half, half + 1, dtype=np.float32) - (SEAM_X - cx))
+    a = np.clip(1 - (dx - 3.5) / 3.5, 0, 1)[:, None]
     for y in range(y0, y1):
-        row = src[(y - y0) % src.shape[0]]
-        dst = base[y, cx - half : cx + half + 1].astype(np.float32)
-        base[y, cx - half : cx + half + 1] = (row * a[0] + dst * (1 - a[0])).astype(np.uint8)
+        t = (y - y0) / (y1 - y0)
+        row = top * (1 - t) + bot * t
+        wgt = soft[y, cols, 0][:, None] * a
+        base[y, cols] = (row * wgt + base[y, cols].astype(np.float32) * (1 - wgt)).astype(np.uint8)
     return base
 
 
@@ -139,9 +145,10 @@ def main() -> None:
     base = lift_medallion(clean, medal, page1)
 
     ys, xs = np.where(medal)
-    mx0, my0, mx1, my1 = xs.min() - 4, ys.min() - 4, xs.max() + 5, ys.max() + 5
-    # cut exactly at the outer edge of the gold line (the flood-fill mask runs ~2 px past it)
-    alpha = cv2.GaussianBlur(cv2.erode(medal, np.ones((5, 5), np.uint8)).astype(np.float32), (3, 3), 0)
+    mx0, my0, mx1, my1 = xs.min() - 20, ys.min() - 20, xs.max() + 21, ys.max() + 21
+    # opaque over the gold line and the feathered fill underneath, then a soft fade of the surrounding
+    # pearl (identical to what is under it), so neither at rest nor while turning is there a hard edge
+    alpha = cv2.GaussianBlur(cv2.dilate(medal, np.ones((29, 29), np.uint8)).astype(np.float32), (0, 0), 3.5)
     alpha = (np.clip(alpha, 0, 1) * 255).astype(np.uint8)
     rgba = np.dstack([clean, alpha])[my0:my1, mx0:mx1]
 
