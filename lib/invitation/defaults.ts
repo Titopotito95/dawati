@@ -43,9 +43,9 @@ export function sampleViewModel(variant: InvitationViewModel["variant"] = "white
     mode: "demo",
     content: {
       ...defaultContent(),
-      groomName: "محمد",
+      groomName: "جلال",
       brideName: "سارة",
-      initials: "م س",
+      initials: "ج س",
       eventDate: "2027-05-20",
       eventTime: "20:30",
       timeNote: "بعد صلاة العشاء",

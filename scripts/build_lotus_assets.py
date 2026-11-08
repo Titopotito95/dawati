@@ -37,7 +37,7 @@ OUT = ROOT / "public" / "assets" / "themes" / "pearl-lotus" / "v1"
 
 SEAM_X = 356.5  # centre of the vertical gold line (cover px)
 BOX = (186, 452, 530, 828)  # search window around the medallion
-TIPS = (464, 807)
+TIPS = (455, 822)  # rows kept: whole medallion incl. its pointed tips
 OVAL = (359, 452, 183, 239)  # page 3 inner oval: centre x, centre y, radius x, radius y (just inside the gold line)  # medallion top / bottom tip rows (the seam line continues beyond them)
 
 
@@ -73,15 +73,17 @@ def medallion_mask(img: np.ndarray) -> np.ndarray:
 
 
 def lift_medallion(img: np.ndarray, medal: np.ndarray, pearl: np.ndarray) -> np.ndarray:
-    """Cover without the medallion: real pearl texture filled in (taken from the same, empty area of
-    page 1 and matched in colour), and the vertical seam line continued through."""
-    hole = cv2.dilate(medal, np.ones((15, 15), np.uint8))
+    """Cover without the medallion (seen only around it while it spins): the colours continue smoothly
+    from the surrounding pearl (inpainting) and real pearl texture detail from the same empty area of
+    page 1 is laid over them; everything outside the medallion stays original. The seam line continues."""
+    hole = cv2.dilate(medal, np.ones((5, 5), np.uint8))
     x0, y0, x1, y1 = BOX
-    ring = (cv2.dilate(hole, np.ones((31, 31), np.uint8)) - hole).astype(bool)
+    smooth = cv2.inpaint(img, hole * 255, 15, cv2.INPAINT_TELEA).astype(np.float32)
     tex = pearl.astype(np.float32)
-    tex += img[ring].mean(0) - tex[ring].mean(0)
-    soft = np.maximum(cv2.GaussianBlur(hole.astype(np.float32), (41, 41), 0), hole.astype(np.float32))[..., None]
-    base = (img.astype(np.float32) * (1 - soft) + np.clip(tex, 0, 255) * soft).astype(np.uint8)
+    detail = tex - cv2.GaussianBlur(tex, (0, 0), 9)
+    fill = np.clip(smooth + detail * 1.1, 0, 255)
+    soft = np.maximum(cv2.GaussianBlur(hole.astype(np.float32), (5, 5), 0), hole.astype(np.float32))[..., None]
+    base = (img.astype(np.float32) * (1 - soft) + fill * soft).astype(np.uint8)
     cx = int(round(SEAM_X))
     half = 9
     src = img[345:455, cx - half : cx + half + 1].astype(np.float32)  # clean stretch of the seam line
@@ -136,8 +138,9 @@ def main() -> None:
     base = lift_medallion(clean, medal, page1)
 
     ys, xs = np.where(medal)
-    mx0, my0, mx1, my1 = xs.min() - 3, ys.min() - 3, xs.max() + 4, ys.max() + 4
-    alpha = cv2.GaussianBlur(cv2.dilate(medal, np.ones((3, 3), np.uint8)) * 255, (3, 3), 0)
+    mx0, my0, mx1, my1 = xs.min() - 10, ys.min() - 10, xs.max() + 11, ys.max() + 11
+    alpha = cv2.GaussianBlur(cv2.dilate(medal, np.ones((11, 11), np.uint8)).astype(np.float32), (9, 9), 0)
+    alpha = (np.clip(alpha, 0, 1) * 255).astype(np.uint8)
     rgba = np.dstack([clean, alpha])[my0:my1, mx0:mx1]
 
     save_webp(base, out / "cover-base.webp")
