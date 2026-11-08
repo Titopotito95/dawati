@@ -82,7 +82,7 @@ def lift_medallion(img: np.ndarray, medal: np.ndarray, pearl: np.ndarray) -> np.
     tex = pearl.astype(np.float32)
     detail = tex - cv2.GaussianBlur(tex, (0, 0), 9)
     fill = np.clip(smooth + detail * 1.1, 0, 255)
-    soft = cv2.erode(hole, np.ones((3, 3), np.uint8)).astype(np.float32)
+    soft = cv2.erode(hole, np.ones((7, 7), np.uint8)).astype(np.float32)  # stays inside the layer's opaque part
     soft = np.maximum(cv2.GaussianBlur(soft, (3, 3), 0), soft)[..., None]
     base = (img.astype(np.float32) * (1 - soft) + fill * soft).astype(np.uint8)
     cx = int(round(SEAM_X))
@@ -140,7 +140,8 @@ def main() -> None:
 
     ys, xs = np.where(medal)
     mx0, my0, mx1, my1 = xs.min() - 4, ys.min() - 4, xs.max() + 5, ys.max() + 5
-    alpha = cv2.GaussianBlur(cv2.dilate(medal, np.ones((3, 3), np.uint8)).astype(np.float32), (3, 3), 0)
+    # cut exactly at the outer edge of the gold line (the flood-fill mask runs ~2 px past it)
+    alpha = cv2.GaussianBlur(cv2.erode(medal, np.ones((5, 5), np.uint8)).astype(np.float32), (3, 3), 0)
     alpha = (np.clip(alpha, 0, 1) * 255).astype(np.uint8)
     rgba = np.dstack([clean, alpha])[my0:my1, mx0:mx1]
 
