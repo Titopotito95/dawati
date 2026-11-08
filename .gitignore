@@ -13,3 +13,4 @@ tsconfig.tsbuildinfo
 .vercel
 .env*
 assets-src/hero/build
+__pycache__/
