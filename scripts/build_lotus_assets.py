@@ -81,11 +81,7 @@ def lift_medallion(img: np.ndarray, medal: np.ndarray, pearl: np.ndarray) -> np.
     smooth = cv2.inpaint(img, hole * 255, 15, cv2.INPAINT_TELEA).astype(np.float32)
     tex = pearl.astype(np.float32)
     detail = tex - cv2.GaussianBlur(tex, (0, 0), 9)
-    # match the strength of the cover's own sparkle around the medallion
-    own = img.astype(np.float32) - cv2.GaussianBlur(img.astype(np.float32), (0, 0), 9)
-    ring = (cv2.dilate(hole, np.ones((61, 61), np.uint8)) - cv2.dilate(hole, np.ones((9, 9), np.uint8))).astype(bool)
-    gain = float(own[ring].std() / max(1e-3, detail[hole.astype(bool)].std()))
-    fill = np.clip(smooth + detail * gain, 0, 255)
+    fill = np.clip(smooth + detail * 1.1, 0, 255)
     # soft 1-2 px blend; the fill continues the surrounding colours, so its edge does not read as a line
     soft = np.maximum(cv2.GaussianBlur(hole.astype(np.float32), (0, 0), 1.2), hole.astype(np.float32))[..., None]
     base = (img.astype(np.float32) * (1 - soft) + fill * soft).astype(np.uint8)
