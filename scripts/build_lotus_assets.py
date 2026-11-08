@@ -76,14 +76,14 @@ def lift_medallion(img: np.ndarray, medal: np.ndarray, pearl: np.ndarray) -> np.
     """Cover without the medallion (seen only around it while it spins): the colours continue smoothly
     from the surrounding pearl (inpainting) and real pearl texture detail from the same empty area of
     page 1 is laid over them; everything outside the medallion stays original. The seam line continues."""
-    hole = cv2.dilate(medal, np.ones((9, 9), np.uint8))
+    hole = cv2.dilate(medal, np.ones((5, 5), np.uint8))  # medallion incl. the whole gold line (+anti-aliasing)
     x0, y0, x1, y1 = BOX
     smooth = cv2.inpaint(img, hole * 255, 15, cv2.INPAINT_TELEA).astype(np.float32)
     tex = pearl.astype(np.float32)
     detail = tex - cv2.GaussianBlur(tex, (0, 0), 9)
     fill = np.clip(smooth + detail * 1.1, 0, 255)
-    # feathered (no hard outline anywhere); the medallion layer's soft edge covers this whole zone at rest
-    soft = np.maximum(cv2.GaussianBlur(hole.astype(np.float32), (0, 0), 3), hole.astype(np.float32))[..., None]
+    # soft 1-2 px blend; the fill continues the surrounding colours, so its edge does not read as a line
+    soft = np.maximum(cv2.GaussianBlur(hole.astype(np.float32), (0, 0), 1.2), hole.astype(np.float32))[..., None]
     base = (img.astype(np.float32) * (1 - soft) + fill * soft).astype(np.uint8)
     # seam line behind the medallion: rebuilt from the exact line pixels just above and just below it
     # (blended between the two), only where the fill replaced the original, so it continues perfectly
@@ -145,10 +145,9 @@ def main() -> None:
     base = lift_medallion(clean, medal, page1)
 
     ys, xs = np.where(medal)
-    mx0, my0, mx1, my1 = xs.min() - 20, ys.min() - 20, xs.max() + 21, ys.max() + 21
-    # opaque over the gold line and the feathered fill underneath, then a soft fade of the surrounding
-    # pearl (identical to what is under it), so neither at rest nor while turning is there a hard edge
-    alpha = cv2.GaussianBlur(cv2.dilate(medal, np.ones((29, 29), np.uint8)).astype(np.float32), (0, 0), 3.5)
+    mx0, my0, mx1, my1 = xs.min() - 8, ys.min() - 8, xs.max() + 9, ys.max() + 9
+    # opaque over the fill underneath, with only a 1-2 px soft edge of surrounding pearl (no halo turns with it)
+    alpha = cv2.GaussianBlur(cv2.dilate(medal, np.ones((9, 9), np.uint8)).astype(np.float32), (0, 0), 1.2)
     alpha = (np.clip(alpha, 0, 1) * 255).astype(np.uint8)
     rgba = np.dstack([clean, alpha])[my0:my1, mx0:mx1]
 
